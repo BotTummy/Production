@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+    {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="flash {{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <h1>Production List</h1>
+    
+    <form method="GET" action="{{ url_for('search_plan') }}">
+        <label for="search">Search:</label>
+        <input type="text" id="search" name="search" placeholder="Enter sequence or status">
+        <button type="submit">Search</button>
+    </form>
+    <br>
+        <table>
+            <thead>
+                <tr>
+                    <th>Sequence</th>
+                    <th>Number in Sequence</th>
+                    <th>Plan Time</th>
+                    <th>Status</th>
+                    <th>Cut</th>
+                    <th>Slide</th>
+                    <th>Assembly</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for plan in plans %}
+                <tr>
+                    <td>{{ plan.sequence }}</td>
+                    <td>{{ plan.number_in_sequeance }}</td>
+                    <td>{{ plan.plan_time }}</td>
+                    <td>{{ plan.status }}</td>
+                    <td>{{ plan.cut }}</td>
+                    <td>{{ plan.slide }}</td>
+                    <td>{{ plan.assembly }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </body>
+    </html>
+    

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oven</title>
+</head>
+<body>
+    <h1>Oven Process</h1>
+
+    <form method="POST" action="{{ url_for('production.start_oven') }}">
+        {{ form.hidden_tag() }}
+        <div>
+            {{ form.sequence_number.label }}<br>
+            {{ form.sequence_number() }}<br>
+        </div>
+        <br>
+        <div>
+            {{ form.quantity_oven.label }}<br>
+            {{ form.quantity_oven() }}<br>
+        </div>
+        <br>
+        <div>
+            {{ form.submit() }}
+        </div>
+    </form>
+    <br>
+    <form method="POST" action="{{ url_for('oven.end', sequence=sequence) }}">
+        <button type="submit" class="button" style="background-color: #f44336;">End</button>
+    </form>
+    <form method="POST" action="{{ url_for('production.end_oven') }}">
+        {{ form.hidden_tag() }}
+        <div>
+            {{ form.sequence_number.label }}<br>
+            {{ form.sequence_number() }}<br>
+        </div>
+        <br>
+        <div>
+            {{ form.quantity_oven.label }}<br>
+            {{ form.quantity_oven() }}<br>
+        </div>
+        <br>
+        <div>
+            {{ form.submit() }}
+        </div>
+    </form>
+</body>
+</html>

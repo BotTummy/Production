@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assembly</title>
+    {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="flash {{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+</head>
+<body>
+    <h1>Start Assembly</h1>
+    <form method="POST" action="{{ url_for('production.start_assy') }}">
+        {{ form.hidden_tag() }}
+        <div>
+            {{ form.sequence_number.label }}<br>
+            {{ form.sequence_number() }}<br>
+        </div>
+        <br>
+        <div>
+            {{ form.assembly_line.label }}<br>
+            {{ form.assembly_line() }}<br>
+        </div>
+        <br>
+        <div>
+            {{ form.submit() }}
+        </div>
+    </form>
+    <br>
+    <br>
+    <br>
+    <h1>End Assembly</h1>
+    <form method="POST" action="{{ url_for('production.end_assy') }}">
+        {{ form.hidden_tag() }}
+        <div>
+            {{ form.sequence_number.label }}<br>
+            {{ form.sequence_number() }}<br>
+        </div>
+        <br>
+        <div>
+            {{ form.quantity_work.label }}<br>
+            {{ form.quantity_work() }}<br>
+        </div>
+        <br>
+        <div>
+            {{ form.submit() }}
+        </div>
+    </form>
+</body>
+</html>

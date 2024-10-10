@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Sequence</title>
+</head>
+<body>
+    {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="flash {{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <h1>Add Production Sequence Number</h1>
+    <form method="POST" action="{{ url_for('production.add_sequence') }}">>
+        {{ form.hidden_tag() }}
+        <div>
+            {{ form.sequence_number.label }}<br>
+            {{ form.sequence_number() }}<br>
+        </div>
+        <div>
+            {{ form.number_in_sequence.label }}<br>
+            {{ form.number_in_sequence() }}<br>
+        </div>
+        <div>
+            {{ form.submit() }}
+        </div>
+    </form>
+
+</body>
+</html>

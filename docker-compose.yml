@@ -11,7 +11,7 @@ services:
       - MYSQL_HOST=db
       - MYSQL_USER=root
       - MYSQL_PASSWORD=Isylzjko0
-      - MYSQL_DB=masterpallet
+      - MYSQL_DB=production
     depends_on:
       - db
     volumes:
@@ -22,7 +22,7 @@ services:
     container_name: mysql_db
     environment:
       MYSQL_ROOT_PASSWORD: Isylzjko0
-      MYSQL_DATABASE: masterpallet
+      MYSQL_DATABASE: production
     volumes:
       - mysql_data:/var/lib/mysql
     ports:

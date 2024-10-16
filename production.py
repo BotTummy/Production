@@ -220,7 +220,7 @@ def end_assy():
                 
                 cursor.close()
                 conn.close()
-                flash('slide End successfully!', 'success')
+                flash('Assembly End successfully!', 'success')
 
                 form.sequence_number.data = ""
                 form.assembly_line.data = ""
@@ -264,4 +264,40 @@ def start_oven():
 
 @production_bp.route('/end_oven', methods=['GET', 'POST'])
 def end_oven():
-    pass
+    session.pop('_flashes', None)
+    form = OvenForm()
+    if form.validate_on_submit():
+        sequence = form.sequence_number.data
+        quantity = form.quantity_work.data
+        conn = db_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT sequence FROM plan WHERE sequence = %s',(sequence,))
+        check_sequence = cursor.fetchone()
+        cursor.execute('SELECT idoven FROM oven WHERE sequence = %s AND oven_end IS NOT NULL',(sequence,))
+        exiting_oven = cursor.fetchone()
+
+        if check_sequence:
+            if not exiting_oven:
+                oven_end_time = datetime.now()
+
+                cursor.execute('UPDATE oven SET oven_end = %s, quantity_work = %s WHERE sequence = %s', 
+                        (oven_end_time, quantity, sequence))
+                conn.commit()
+
+                cursor.execute('''UPDATE plan SET oven = %s, status = 'Oven OK' WHERE sequence = %s ''', 
+                (quantity, sequence))
+                conn.commit()
+                
+                cursor.close()
+                conn.close()
+                flash('Oven End successfully!', 'success')
+
+                form.sequence_number.data = ""
+                form.assembly_line.data = ""
+                form.quantity_work.data = ""
+                return render_template('assembly.html', form=form)
+            else:
+                flash('Oven is Exits!', 'danger')
+        else:
+            flash('Sequence not match!', 'danger')
+    return render_template('oven.html', form=form)

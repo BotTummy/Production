@@ -25,10 +25,7 @@
         </div>
     </form>
     <br>
-    <form method="POST" action="{{ url_for('oven.end', sequence=sequence) }}">
-        <button type="submit" class="button" style="background-color: #f44336;">End</button>
-    </form>
-    <form method="POST" action="{{ url_for('production.end_oven') }}">
+    <form method="POST" action="{{ url_for('production.end_cut') }}">
         {{ form.hidden_tag() }}
         <div>
             {{ form.sequence_number.label }}<br>

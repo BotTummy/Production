@@ -29,6 +29,5 @@ def search_plan():
 
     return render_template('home.html', plans=plans)
 
-
 if __name__ == "__main__":
     app.run(debug=True)

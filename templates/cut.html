@@ -19,7 +19,7 @@
         {{ form.hidden_tag() }}
         <div>
             {{ form.sequence_number.label }}<br>
-            {{ form.sequence_number() }}<br>
+            {{ form.sequence_number(readonly=form.sequence_number.render_kw and form.sequence_number.render_kw.get('readonly')) }}<br>
         </div>
         <br>
         <div>

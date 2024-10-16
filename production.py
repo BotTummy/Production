@@ -34,6 +34,13 @@ def add_sequence():
 def start_cut():
     form = CutForm()
     session.pop('_flashes', None)
+
+    # Check if `order_sequence` is present in the URL parameters
+    order_sequence = request.args.get('order_sequence')
+    if order_sequence:
+        form.sequence_number.data = order_sequence  # Pre-fill with URL parameter
+        form.sequence_number.render_kw = {'readonly': True}  # Make the field readonly
+
     if form.validate_on_submit():
         machine = request.form.get('machine')
         sequence = form.sequence_number.data

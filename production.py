@@ -39,7 +39,6 @@ def start_cut():
     order_sequence = request.args.get('order_sequence')
     if order_sequence:
         form.sequence_number.data = order_sequence  # Pre-fill with URL parameter
-        form.sequence_number.render_kw = {'readonly': True}  # Make the field readonly
 
     if form.validate_on_submit():
         machine = request.form.get('machine')
@@ -64,7 +63,7 @@ def start_cut():
                 flash('Cut is Exits!', 'danger') 
         else:
             flash('Sequence not match!', 'danger') 
-    return render_template('cut.html', form=form)
+    return render_template('cut.html', form=form, readonly=bool(order_sequence))
 
 @production_bp.route('/end_cut', methods=['GET', 'POST'])
 def end_cut():

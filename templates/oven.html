@@ -5,6 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Oven</title>
 </head>
+<style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4fff0;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 24px;
+            color: #00990d;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Form Container */
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Labels and Input Fields */
+        label {
+            font-size: 14px;
+            color: #333;
+        }
+        select, input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccdce8;
+            border-radius: 5px;
+            background-color: #f0f8ff;
+            font-size: 16px;
+            color: #333;
+        }
+        select:focus, input[type="text"]:focus, input[type="number"]:focus {
+            border-color: #006699;
+            outline: none;
+            background-color: #e6f2ff;
+        }
+
+        /* Button Style */
+        button, input[type="submit"] {
+            background-color: #006699;
+            color: #ffffff;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+        button:hover, input[type="submit"]:hover {
+            background-color: #004d66;
+        }
+    </style>
 <body>
     <h1>Oven Process</h1>
 
@@ -25,7 +90,7 @@
         </div>
     </form>
     <br>
-    <form method="POST" action="{{ url_for('production.end_cut') }}">
+    <form method="POST" action="{{ url_for('production.end_oven') }}">
         {{ form.hidden_tag() }}
         <div>
             {{ form.sequence_number.label }}<br>

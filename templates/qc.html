@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cut</title>
-    <style>
+    <title>Quality check</title>
+</head>
+<style>
         /* General Styles */
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f8ff;
+            background-color: #f4fff0;
             color: #333;
             margin: 0;
             padding: 20px;
         }
         h1 {
             font-size: 24px;
-            color: #006699;
+            color: #00990d;
             text-align: center;
             margin-bottom: 20px;
         }
@@ -69,46 +70,14 @@
             background-color: #004d66;
         }
     </style>
-</head>
 <body>
-    <h1>Start Cut</h1>
-    <form method="POST" action="{{ url_for('production.start_cut', machine=request.form.get('machine')) }}">
-        <div>
-            <label for="machine">Select Machine:</label>
-            <select id="machine" name="machine">
-                <option value="1">Cut 1</option>
-                <option value="2">Cut 2</option>
-                <option value="3">Cut 3</option>
-            </select>
-        </div>
-        {{ form.hidden_tag() }}
-        <div>
-            {{ form.sequence_number.label }}<br>
-            {{ form.sequence_number(readonly=readonly) }}
-        </div>
-        <div>
-            {{ form.number_in_sequence.label }}<br>
-            {{ form.number_in_sequence() }}
-        </div>
-        <div>
-            {{ form.submit() }}
-        </div>
-    </form>
+    <h1>Quality Check</h1>
 
-    <h1>End Cut</h1>
-    <form method="POST" action="{{ url_for('production.end_cut') }}">
+    <form method="POST" action="{{ url_for('production.qc') }}">
         {{ form.hidden_tag() }}
         <div>
             {{ form.sequence_number.label }}<br>
-            {{ form.sequence_number(readonly=readonly) }}
-        </div>
-        <div>
-            {{ form.number_in_sequence.label }}<br>
-            {{ form.number_in_sequence() }}
-        </div>
-        <div>
-            {{ form.quantity_work.label }}<br>
-            {{ form.quantity_work() }}
+            {{ form.sequence_number() }}<br>
         </div>
         <div>
             {{ form.submit() }}

@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, flash, Blueprint, session, request
 from db import db_connection
-from form import SequenceForm, CutForm, SlideForm, AssemblyForm, OvenForm
+from form import SequenceForm, CutForm, SlideForm, AssemblyForm, OvenForm, QualityForm
 from datetime import datetime
 
 production_bp = Blueprint('production', __name__, template_folder='templates/')
@@ -116,7 +116,7 @@ def start_slide(machine):
         check_sequence = cursor.fetchone()
         cursor.execute('SELECT idslide FROM slide WHERE sequence = %s AND number_in_sequeance = %s',(sequence, number,))
         exiting_slide = cursor.fetchone()
-
+        
         if check_sequence:
             if not exiting_slide:
                 cursor.execute('INSERT INTO slide (machine, sequence, number_in_sequeance) VALUES (%s, %s, %s)', (machine, sequence, number,))
@@ -273,36 +273,70 @@ def end_oven():
     form = OvenForm()
     if form.validate_on_submit():
         sequence = form.sequence_number.data
-        quantity = form.quantity_work.data
+        quantity = form.quantity_oven.data
         conn = db_connection()
         cursor = conn.cursor()
-        cursor.execute('SELECT sequence FROM plan WHERE sequence = %s',(sequence,))
+        cursor.execute('SELECT oven FROM plan WHERE sequence = %s',(sequence,))
         check_sequence = cursor.fetchone()
-        cursor.execute('SELECT idoven FROM oven WHERE sequence = %s AND oven_end IS NOT NULL',(sequence,))
+        cursor.execute('SELECT idoven FROM oven WHERE sequence = %s',(sequence,))
         exiting_oven = cursor.fetchone()
 
         if check_sequence:
-            if not exiting_oven:
+            if exiting_oven:
                 oven_end_time = datetime.now()
 
-                cursor.execute('UPDATE oven SET oven_end = %s, quantity_work = %s WHERE sequence = %s', 
+                qty_oven = check_sequence[0]
+                quantity = qty_oven + quantity
+
+                cursor.execute('UPDATE oven SET end_oven = %s, quantity_oven = %s WHERE sequence = %s', 
                         (oven_end_time, quantity, sequence))
                 conn.commit()
 
-                cursor.execute('''UPDATE plan SET oven = %s, status = 'Oven OK' WHERE sequence = %s ''', 
+                cursor.execute('''UPDATE plan SET oven = %s, status = CASE WHEN oven = assembly THEN 'Oven' ELSE status END WHERE sequence = %s ''', 
                 (quantity, sequence))
                 conn.commit()
                 
                 cursor.close()
                 conn.close()
-                flash('Oven End successfully!', 'success')
-
+            
                 form.sequence_number.data = ""
-                form.assembly_line.data = ""
-                form.quantity_work.data = ""
-                return render_template('assembly.html', form=form)
+                form.quantity_oven.data = ""
+                flash('Oven End successfully!', 'success')
+                return render_template('oven.html', form=form)
             else:
                 flash('Oven is Exits!', 'danger')
         else:
             flash('Sequence not match!', 'danger')
     return render_template('oven.html', form=form)
+
+@production_bp.route('/qc_check', methods=['GET', 'POST'])
+def qc_check():
+    session.pop('_flashes', None)
+    form = QualityForm()
+    if form.validate_on_submit():
+        sequence = form.sequence_number.data
+        conn = db_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT sequence FROM plan WHERE sequence = %s',(sequence,))
+        check_sequence = cursor.fetchone()
+        cursor.execute('SELECT idquality FROM quality WHERE sequence = %s',(sequence,))
+        exiting_qc = cursor.fetchone()
+
+        if check_sequence:
+            if not exiting_qc:
+                cursor.execute('INSERT INTO quality (sequence) VALUES (%s)', (sequence,))
+                conn.commit()
+                cursor.close()
+                conn.close()
+                flash('QC check!', 'success')
+                form.sequence_number.data = ""
+                return render_template('qc.html', form=form)
+            else:
+                flash('Sequence is Exits!', 'danger')
+        else:
+            flash('Sequence not match!', 'danger')
+    return render_template('qc.html', form=form)
+
+@production_bp.route('/transport', methods=['GET', 'POST'])
+def transport():
+    pass

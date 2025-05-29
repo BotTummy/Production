@@ -1,0 +1,82 @@
+{% extends 'layout.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h2>Quality Control <button type="button" onclick="submitPlan()">Submit Plan</button></h2>
+
+<table id="table1" class="scrollable-table">
+    <thead>
+        <tr>
+            <th>Sequence</th>
+            <th>Delivery Date</th>
+            <th>Customer</th>
+            <th>Model</th>
+            <th>Size</th>
+            <th>Remark</th>
+            <th>Check</th>
+            <th>Quantity</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr data-order-id="{{ order.id }}">
+            <td>{{ order.id }}</td>
+            <td>{{ order.delivery_date }}</td>
+            <td>{{ order.customer }}</td>
+            <td>{{ order.model }}</td>
+            <td>{{ order.size }}</td>
+            <td>{{ order.remark }}</td>
+            <td><input type="checkbox" class="order-check" value="{{ order.id }}"></td>
+            <td><input type="number" class="order-qty" max="{{ order.quantity }}" min="0" value="{{ order.quantity }}"></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+function submitPlan() {
+    const rows = document.querySelectorAll('#table1 tbody tr');
+    const selectedOrders = [];
+
+    rows.forEach(row => {
+        const checkbox = row.querySelector('.order-check');
+        const qtyInput = row.querySelector('.order-qty');
+        if (checkbox.checked) {
+            selectedOrders.push({
+                order_id: checkbox.value,
+                quantity: qtyInput.value
+            });
+        }
+    });
+
+    if (selectedOrders.length === 0) {
+        alert('กรุณาเลือกอย่างน้อย 1 รายการ');
+        return;
+    }
+
+    fetch('/confirm_check', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ orders: selectedOrders })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('เกิดข้อผิดพลาดในการส่งข้อมูล');
+        }
+        return response.json(); // ถ้า server ตอบกลับเป็น JSON
+    })
+    .then(data => {
+        alert('ส่งข้อมูลสำเร็จ');
+        // หรือ redirect หรือทำอย่างอื่น
+        console.log(data);
+    })
+    .catch(error => {
+        console.error(error);
+        alert('เกิดข้อผิดพลาด');
+    });
+}
+</script>
+{% endblock %}

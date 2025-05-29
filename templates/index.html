@@ -1,0 +1,14 @@
+{% extends 'layout.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<section class="featured-banner">
+    <main>
+        <div class="welcome-container">
+            <h1>Welcome, {{ session['username'] }}!</h1>
+        </div>
+    </main>
+</section>
+{% endblock %}
+    

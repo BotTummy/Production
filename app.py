@@ -1,33 +1,22 @@
-from flask import Flask, render_template, request
-from production import production_bp
-from db import db_connection
+from flask import Flask, render_template, request, session, redirect, url_for
+from flask_bcrypt import Bcrypt
+from login import login_bp
+from qualitycontrol import qualitycontrol_bp
 
 app = Flask(__name__)
-app.register_blueprint(production_bp)
+app.register_blueprint(login_bp)
+app.register_blueprint(qualitycontrol_bp)
 
 app.config['SECRET_KEY'] = 'MasterPallet'
+app.config['MAX_CONTENT_PATH'] = 16 * 1024 * 1024
+
+bcrypt = Bcrypt(app)
 
 @app.route('/', methods=['GET'])
 def home():
-    return render_template('home.html')
-
-@app.route('/search_plan', methods=['GET'])
-def search_plan():
-    search_term = request.args.get('search', '')
-    
-    conn = db_connection()
-    cursor = conn.cursor(dictionary=True)
-    
-    if search_term:
-        cursor.execute('SELECT * FROM plan WHERE sequence LIKE %s OR status LIKE %s', (f'%{search_term}%', f'%{search_term}%'))
-    else:
-        cursor.execute('SELECT * FROM plan')
-    
-    plans = cursor.fetchall()
-    cursor.close()
-    conn.close()
-
-    return render_template('home.html', plans=plans)
+    if 'loggedin' in session and session['loggedin'] == True:
+        return render_template('index.html', username = session['username'])
+    return redirect(url_for('login.login'))
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    	<link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='logob.png') }}">
+        <title>{% block title %}{% endblock %}</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    </head>
+	<body>
+		<!-- Logo and Navigation Menu -->
+		<header>
+			<div class="logo">
+				<h1>MASTER<span>PALLET</span>SOLUTION</h1>
+			</div>
+			<nav>
+				<ul>
+					<li><a href="{{ url_for('home') }}" class="active">Home</a></li>
+					<li><a href="{{ url_for('home') }}">Cut</a></li>
+					<li><a href="{{ url_for('home') }}">Split</a></li>
+					<li><a href="{{ url_for('home') }}">Assy</a></li>
+					<li><a href="{{ url_for('qualitycontrol.qchome') }}">QC</a></li>
+					<li><a href="{{ url_for('login.logout') }}">Logout</a></li>
+				</ul>
+			</nav>
+		</header>
+		<div class="content">
+			{% block content %}{% endblock %}
+		</div>
+		<!-- Footer section -->
+		<footer>
+			<p>&copy; Master Pallet Solution.</p>
+		</footer>
+	</body>
+</html>
+

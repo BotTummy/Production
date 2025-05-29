@@ -12,7 +12,7 @@ def db_connection():
 
 def pd_connection():
     conn = mysql.connector.connect(
-        host='89dc939655ef',
+        host='69759854e4f4',
         # host='localhost',
         user='root',
         password='Isylzjko0',

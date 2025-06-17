@@ -49,7 +49,7 @@ def confirm_check():
 
                 total_quantity = orders[order_id]
                 new_total = total_checked
-
+                
                 # อัปเดตสถานะ
                 if new_total >= total_quantity:
                     sql_update = '''UPDATE masterpallet.orders SET status = "Checked" WHERE id = %s'''
@@ -99,7 +99,76 @@ def confirm_check():
         conn.close()
         return render_template('qc/confirm_check.html', orders = orders )
 
-@qualitycontrol_bp.route('/logcheck', methods=['GET'])
-def logcheck():
-    # return render_template('qc/logcheck.html')
-    pass
+@qualitycontrol_bp.route('/check_logs', methods=['GET'])
+def check_logs():
+    if not check_session(['AD','QC']):
+        return redirect(url_for('home'))
+    
+    conn = db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    conn2 = pd_connection()
+    cursor2 = conn2.cursor(dictionary=True)
+
+    query = '''SELECT 
+                    orders.id,
+                    orders.customer,
+                    orders.model,
+                    orders.delivery_date,
+                    models.remark,
+                    CONCAT(models.thickness,
+                            ' x ',
+                            models.width,
+                            ' x ',
+                            models.length) AS size
+                FROM
+                    masterpallet.orders
+                        JOIN
+                    masterpallet.models ON models.model = orders.model
+                WHERE
+                    status NOT IN ("Cancle", "Order")
+                ORDER BY orders.delivery_date ASC'''
+    
+    cursor.execute(query)
+    orders = cursor.fetchall()
+
+    query = '''SELECT * FROM production.quality_check'''
+    cursor2.execute(query)
+    check_item = cursor2.fetchall()
+
+    # สร้างรายการผลลัพธ์
+    matched_items = []
+
+    # วนลูปผ่าน check_item เพื่อหา orders ที่มี id ตรงกับ sequence
+    for check in check_item:
+        for order in orders:
+            if order['id'] == int(check['sequence']):
+                # สร้าง dictionary ใหม่ที่รวมข้อมูลจากทั้งสองแหล่ง
+                matched_item = {
+                    'id': check['sequence'],
+                    'check_date': check['check_date'],
+                    'quantity': check['quantity'],
+                    'customer': order['customer'],
+                    'model': order['model'],
+                    'delivery_date': order['delivery_date'],
+                    'remark': order['remark'],
+                    'size': order['size']
+                }
+
+                matched_items.append(matched_item)
+                break  # หยุดเมื่อพบรายการที่ตรงกัน
+
+    try:
+        conn.commit()
+        conn2.commit()
+    except Exception as e:
+        conn.rollback()
+        conn2.rollback()
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+        cursor2.close()
+        conn2.close()
+
+    return render_template('qc/check_logs.html', orders = matched_items )

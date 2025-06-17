@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start Cut</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h2>Start Cut</h2>
+            <form method="GET" action="/start_cut">                
+                <div class="form-action">
+                    <button type="submit" class="form-button">Start Cutting</button>
+                </div>
+            </form>
+        </div>
+        <div class="form-container">
+            <h2>End Cut</h2>
+            <form method="GET" action="/end_cut">
+                <div class="input-group">
+                    <td>Cut Machine No.</td>
+                    <select class="matchine" name="matchine" id="matchine">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
+                </div>
+                
+                <div class="form-action">
+                    <button type="submit" class="form-button">End Cutting</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

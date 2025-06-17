@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start Cut</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+    <style>
+        .input-change {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        .input-change label {
+            /* display: inline-block; */
+            width: 100px;
+            font-weight: bold;
+        }
+
+        .input-change input {
+            width: 60px;
+            margin-right: 5px;
+        }
+
+        .form-action {
+            margin-top: 20px;
+        }
+
+        .form-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h2>End Cut</h2>
+            <form method="POST" action="/end_split">
+                <div class="input-group">
+                    <input type="hidden" name="sequence" value="{{ plan_details.sequence }}">
+                    <input type="hidden" name="row_number" value="{{ plan_details.row_number }}">
+                    <input type="hidden" name="matchine" value="{{ matchine }}">
+                    <label>Type: {{ plan_details.material_type }}</label>
+                    <input type="hidden" name="material_type" value="{{ plan_details.material_type }}">
+                    <br>
+                    <label>Size: {{ plan_details.size }}</label>
+                    <input type="hidden" name="material_size" value="{{ plan_details.size }}">
+                    <br>
+                    <label>Work Qty: <input type="number" name="work_qty" ></label>
+                    <br>
+                </div>
+
+                <div class="input-change">
+                    <div>
+                        <label >WIP Detail</label>
+                    </div>
+                    <br>
+                    <div>
+                        <label>WIP Size:</label>
+                        <input type="number" name="wip_thick" id="wip_thick" min="0">x
+                        <input type="number" name="wip_width" id="wip_width" min="0">
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <label>Qty:</label>
+                        <input type="number" name="wip_qty" id="wip_qty" min="0">
+                    </div>
+                </div>
+                
+                <div class="form-action">
+                    <button type="submit" class="form-button">End Spliting</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+
+

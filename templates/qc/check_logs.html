@@ -1,0 +1,37 @@
+{% extends 'layout.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h2>Quality Control Logs</h2>
+
+<table id="table1" class="scrollable-table">
+    <thead>
+        <tr>
+            <th>Sequence</th>
+            <th>Delivery Date</th>
+            <th>Customer</th>
+            <th>Model</th>
+            <th>Size</th>
+            <th>Remark</th>
+            <th>Quantity</th>
+            <th>Check Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr data-order-id="{{ order.id }}">
+            <td>{{ order.id }}</td>
+            <td>{{ order.delivery_date }}</td>
+            <td>{{ order.customer }}</td>
+            <td>{{ order.model }}</td>
+            <td>{{ order.size }}</td>
+            <td>{{ order.remark }}</td>
+            <td>{{ order.quantity }}</td>
+            <td>{{ order.check_date }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

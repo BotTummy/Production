@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start Cut</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+    <style>
+        .input-change {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        .input-change label {
+            /* display: inline-block; */
+            width: 100px;
+            font-weight: bold;
+        }
+
+        .input-change input {
+            width: 60px;
+            margin-right: 5px;
+        }
+
+        .form-action {
+            margin-top: 20px;
+        }
+
+        .form-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h2>Start Cut</h2>
+            <form method="POST" action="/submit_cut">
+                <div class="input-group">
+                    <label>Material Detail</label><br>
+                    <input type="hidden" name="sequence" value="{{ sequence }}">
+                    <input type="hidden" name="row_number" value="{{ row_number }}">
+                    <label>Type: {{ plan_details.material_type }}</label>
+                    <input type="hidden" name="material_type" value="{{ plan_details.material_type }}">
+                    <br>
+                    <label>Size: {{ plan_details.material_size }}</label>
+                    <input type="hidden" name="material_size" value="{{ plan_details.material_size }}">
+                    <br>
+                    <label>Qty: {{ plan_details.material_qty }}</label>
+                    <input type="hidden" name="material_qty" value="{{ plan_details.material_qty }}">
+                    <br>
+                    <td>Cut Machine No.</td>
+                    <select class="matchine" name="matchine" id="matchine">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
+                    <br>
+                </div>
+
+                <div class="input-change">
+                    <div>
+                        <label >Change Material Detail</label>
+                    </div>
+                        <br>
+                    <div>
+                    Type:
+                    <select class="material_type_change" name="material_type_change" id="material_type_change">
+                        <option value=""></option>
+                        <option value="GN">GN</option>
+                        <option value="KD">KD</option>
+                        <option value="WIP">WIP</option>
+                        <option value="PLY">PLY</option>
+                        <option value="Orther">Orther</option>
+                    </select>
+                    </div>
+                    <br>
+                    <div>
+                        <label>Size:</label>
+                        <br>
+                        <input type="number" name="thick_change" id="thick_change" min="0" placeholder="Thick">
+                        X
+                        <input type="number" name="width_change" id="width_change" min="0" placeholder="Width">
+                        X
+                        <input type="number" name="length_change" id="length_change" min="0" placeholder="Length">
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <label>Qty:</label>
+                        <input type="number" name="qty_change" id="qty_change" min="1">
+                    </div>
+                </div>
+                
+                <div class="form-action">
+                    <button type="submit" class="form-button">Start Cutting</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+
+

@@ -2,10 +2,14 @@ from flask import Flask, render_template, request, session, redirect, url_for
 from flask_bcrypt import Bcrypt
 from login import login_bp
 from qualitycontrol import qualitycontrol_bp
+from cut import cut_bp
+from split import split_bp
 
 app = Flask(__name__)
 app.register_blueprint(login_bp)
 app.register_blueprint(qualitycontrol_bp)
+app.register_blueprint(cut_bp)
+app.register_blueprint(split_bp)
 
 app.config['SECRET_KEY'] = 'MasterPallet'
 app.config['MAX_CONTENT_PATH'] = 16 * 1024 * 1024

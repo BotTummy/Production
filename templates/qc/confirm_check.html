@@ -70,8 +70,7 @@ function submitPlan() {
     })
     .then(data => {
         alert('ส่งข้อมูลสำเร็จ');
-        // หรือ redirect หรือทำอย่างอื่น
-        console.log(data);
+         window.location.href = '/qc'; 
     })
     .catch(error => {
         console.error(error);

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start Cut</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h2>Start Split</h2>
+            <form method="GET" action="/start_split">
+                <div class="input-group">
+                    <div class="input-group">
+                        <label for="sequence">Sequence</label>
+                        <input type="text" id="sequence" name="sequence" class="form-input" value="{{ order_sequence }}">
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <label for="row_number">Row Number</label>
+                        <input type="number" id="row_number" name="row_number" class="form-input" min="1">
+                    </div>
+                    <br>
+                    <td>Split Machine No.</td>
+                    <select class="matchine" name="matchine" id="matchine">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                    </select>
+                </div>
+                
+                <div class="form-action">
+                    <button type="submit" class="form-button">Start Spliting</button>
+                </div>
+            </form>
+        </div>
+        <div class="form-container">
+            <h2>End Split</h2>
+            <form method="GET" action="/end_split">
+                <div class="input-group">
+                    <td>Split Machine No.</td>
+                    <select class="matchine" name="matchine" id="matchine">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                    </select>
+                </div>
+                
+                <div class="form-action">
+                    <button type="submit" class="form-button">End Spliting</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

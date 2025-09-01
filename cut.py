@@ -11,47 +11,108 @@ def cuthome():
         return redirect(url_for('home'))
     return render_template('cut/cuthome.html')
 
-@cut_bp.route('/start_cut', methods=['GET', 'POST'])
-def start_cut():
+@cut_bp.route('/select_cut', methods=['GET', 'POST'])
+def select_cut():
     if request.method == 'POST':
-        sequence = request.form.get('sequence')
-        row_number_raw = request.form.get('row_number')
+        selected_ids = request.form.getlist('selected_cuts')
+        print(f"ID ที่ถูกเลือกคือ: {selected_ids}")
 
-        if not row_number_raw or not row_number_raw.isdigit():
-            return "Invalid row number", 400
-        row_number = int(row_number_raw)
+        if selected_ids:
+            conn = db_connection()
+            cursor = conn.cursor(dictionary=True)
+            conn2 = pd_connection()
+            cursor2 = conn2.cursor(dictionary=True)
 
+            try:
+                query = '''INSERT INTO `production`.`cut` (`plan_id`) VALUES (%s)'''
+                query2 = '''UPDATE `masterpallet`.`plan_details` 
+                            SET `process_cut` = 'Cuted' 
+                            WHERE (`idplan_details` = %s)
+                            '''
+                for an_id in selected_ids:
+
+                    cursor2.execute(query, (an_id,))
+                    cursor.execute(query2, (an_id,))
+
+                conn.commit()
+                conn2.commit()
+                # print(f"เพิ่มข้อมูล {len(selected_ids)} รายการสำเร็จ")
+
+                check_query = '''
+                SELECT
+                    COUNT(*) AS total_items_in_order,
+                    SUM(CASE WHEN process_cut = 'Cuted' THEN 1 ELSE 0 END) AS cut_items_in_order
+                FROM
+                    `masterpallet`.`plan_details`
+                WHERE
+                    plan_status != 'Cancel' AND 
+                    order_id = (SELECT order_id FROM `masterpallet`.`plan_details` WHERE idplan_details = %s);'''
+                
+                cursor.execute(check_query, (selected_ids[0],))
+                check_item = cursor.fetchone()
+
+                if check_item:
+                    total_items = check_item['total_items_in_order']
+                    cut_items = int(check_item['cut_items_in_order'])
+
+                    if total_items == cut_items:
+                        update_order_status = '''UPDATE `masterpallet`.`orders` 
+                                   SET `status` = 'Cuted' 
+                                   WHERE `id` = (SELECT order_id FROM `masterpallet`.`plan_details` WHERE idplan_details = %s) '''
+
+                        cursor.execute(update_order_status, (int(selected_ids[0]),))
+                        conn.commit()
+
+            except Exception as e:
+                conn.rollback()
+                conn2.rollback()
+                print(f"เกิดข้อผิดพลาด: {e}")
+            finally:
+                cursor.close()
+                conn.close()
+                cursor2.close()
+                conn2.close()
+        else:
+            pass
+
+        return render_template('cut/cuthome.html')
+    
+    else:
+        order_sequence = request.args.get('order_sequence')
+        if order_sequence:
+            pass
+        
         conn = db_connection()
         cursor = conn.cursor(dictionary=True)
-
-        query = '''
+        
+        query_plan_details_detail = '''
             SELECT 
-                plan_details.order_id,
-                plan_details.material_type,
-                plan_details.material_size,
-                plan_details.work_length,
-                plan_details.material_qty
+                idplan_details,
+                order_id,
+                material_type,
+                material_size,
+                material_qty,
+                CONCAT(work_thickness - work_tolerance_thickness,
+                                        ' x ',
+                                        work_width - work_tolerance_width,
+                                        ' x ',
+                                        work_length) AS size,
+                quantity,
+                process_cut
             FROM
                 masterpallet.plan_details
             WHERE
-                plan_status != 'Cancel' AND order_id = %s 
-            LIMIT 1 OFFSET %s;
-        '''
-
-        cursor.execute(query, (sequence, row_number - 1))
-        plan_details = cursor.fetchone()
+                order_id = %s
+                    AND plan_status != "Cancel"'''
+        
+        cursor.execute(query_plan_details_detail, (order_sequence,))
+        plan_details = cursor.fetchall()
+        # print(plan_details)
 
         cursor.close()
         conn.close()
 
-        if not plan_details:
-            return "No plan details found", 404
-
-        return render_template('cut/start_cut.html', plan_details = plan_details, sequence = sequence, row_number = row_number)
-
-    else:
-        order_sequence = request.args.get('order_sequence')
-        return render_template('cut/selectcut.html', order_sequence = order_sequence)
+        return render_template('cut/selectcut.html', order_sequence = order_sequence, plan_details = plan_details)
 
     
 @cut_bp.route('/submit_cut', methods=['POST'])

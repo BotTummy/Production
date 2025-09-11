@@ -91,7 +91,7 @@ def confirm_check():
                     masterpallet.models ON models.model = orders.model
                 WHERE
                     status NOT IN ("Cancle", "END", "Checked") AND
-                    stock != "Stock"
+                    stock is null
                 ORDER BY orders.delivery_date ASC'''
         
         cursor.execute(query)

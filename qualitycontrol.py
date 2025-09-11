@@ -90,7 +90,8 @@ def confirm_check():
                         JOIN
                     masterpallet.models ON models.model = orders.model
                 WHERE
-                    status NOT IN ("Cancle", "END", "Checked", "Stock")
+                    status NOT IN ("Cancle", "END", "Checked") AND
+                    stock != "Stock"
                 ORDER BY orders.delivery_date ASC'''
         
         cursor.execute(query)

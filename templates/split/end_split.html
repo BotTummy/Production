@@ -1,11 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Start Cut</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
-    <style>
+{% extends 'layoutP.html' %}
+
+{% block title %}Split{% endblock %}
+
+{% block content %}
+<style>
         .input-change {
             margin-top: 10px;
             padding: 10px;
@@ -35,12 +33,12 @@
             cursor: pointer;
         }
     </style>
-</head>
 <body>
     <div class="container">
         <div class="form-container">
-            <h2>End Cut</h2>
+            
             <form method="POST" action="/end_split">
+                <h2>End Cut</h2>
                 <div class="input-group">
                     <input type="hidden" name="sequence" value="{{ plan_details.sequence }}">
                     <input type="hidden" name="row_number" value="{{ plan_details.row_number }}">
@@ -78,6 +76,6 @@
         </div>
     </div>
 </body>
-</html>
+{% endblock %}
 
 

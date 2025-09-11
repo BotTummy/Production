@@ -1,16 +1,84 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Start Cut</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
-</head>
-<body>
+{% extends 'layoutP.html' %}
+
+{% block title %}Split{% endblock %}
+
+{% block content %}
+<style>
+    .status-container {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .status-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); /*ปรับความกว้างขั้นต่ำ*/
+        gap: 15px;
+        margin-top: 15px;
+    }
+    .machine-status-item {
+        background-color: #fff;
+        padding: 7px; /*เพิ่ม Padding*/
+        border: 0.5px solid #ccc;
+        border-radius: 5px;
+        font-size: 1em;
+        line-height: 1.5; /*ปรับระยะห่างบรรทัด*/
+    }
+    .status {
+        display: inline-block; /*เพื่อให้ margin ทำงาน*/
+        margin-top: 4px;
+        font-weight: bold;
+        padding: 4px 10px;
+        border-radius: 4px;
+        color: white;
+    }
+    .status-Start, .status-Running { /*เผื่อ status ชื่อ Running*/
+        background-color: #28a745; /* สีเขียว */
+    }
+    .status-Idle {
+        background-color: #6c757d; /* สีเทา */
+    }
+    .status-Unknown {
+        background-color: #ffc107; /* สีเหลือง */
+    }
+    .sequence-info {
+        font-size: 0.9em;
+        color: #333;
+        margin-top: 5px;
+    }
+</style>
+
+    <div class="status-container">
+        <h2>Machine Status</h2>
+        <div class="status-grid">
+            {% if machine_statuses %}
+                {% for machine in machine_statuses %}
+                <div class="machine-status-item">
+                    <div class="sequence-info">Machine {{ machine.id }}</div>
+                    
+                    {% if machine.status == 'Start' or machine.status == 'Running' %}
+                        <div class="status status-Start">Running</div>
+                        <div class="sequence-info">Sequence: {{ machine.sequence }} - {{ machine.row_number }}</div>
+                    {% elif machine.status == 'Idle' %}
+                        <div class="status status-Idle">Idle</div>
+                    {% else %}
+                        <div class="status status-Unknown">Unknown</div>
+                    {% endif %}
+
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>ไม่สามารถโหลดข้อมูลสถานะเครื่องจักรได้</p>
+            {% endif %}
+        </div>
+    </div>
     <div class="container">
         <div class="form-container">
-            <h2>Start Split</h2>
+            
             <form method="GET" action="/start_split">
+                <h2>Start Split</h2>
                 <div class="input-group">
                     <div class="input-group">
                         <label for="sequence">Sequence</label>
@@ -40,8 +108,9 @@
             </form>
         </div>
         <div class="form-container">
-            <h2>End Split</h2>
+            
             <form method="GET" action="/end_split">
+                <h2>End Split</h2>
                 <div class="input-group">
                     <td>Split Machine No.</td>
                     <select class="matchine" name="matchine" id="matchine">
@@ -62,4 +131,4 @@
         </div>
     </div>
 </body>
-</html>
+{% endblock %}

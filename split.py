@@ -9,7 +9,52 @@ split_bp = Blueprint('split', __name__, template_folder='templates/split')
 def splithome():
     if not check_session(['AD','PD']):
         return redirect(url_for('home'))
-    return render_template('split/splithome.html')
+
+    total_machines = 8
+    final_machine_statuses = []
+    for i in range(1, total_machines + 1):
+        final_machine_statuses.append({
+            'id': i,
+            'status': 'Idle',
+            'sequence': '-',
+            'row_number':'-'
+        })
+
+    try:
+        conn2 = pd_connection()
+        cursor2 = conn2.cursor(dictionary=True)
+
+        query_running_machines = """
+            SELECT 
+                matchine, `row_number`, sequence, status 
+            FROM
+                production.start_split
+            WHERE
+                status = 'Start'
+        """
+        cursor2.execute(query_running_machines)
+        running_machines = cursor2.fetchall() 
+
+        if running_machines:
+            for machine in running_machines:
+                machine_id = machine['matchine']
+                if 1 <= machine_id <= total_machines:
+                    final_machine_statuses[machine_id - 1]['status'] = machine['status']
+                    final_machine_statuses[machine_id - 1]['sequence'] = machine['sequence']
+                    final_machine_statuses[machine_id - 1]['row_number'] = machine['row_number']
+
+    except Exception as e:
+        print(f"Database Error: {e}")
+
+        for i in range(total_machines):
+            final_machine_statuses[i]['status'] = 'Unknown'
+
+    finally:
+        if 'conn2' in locals() and conn2.is_connected():
+            cursor2.close()
+            conn2.close()
+            
+    return render_template('split/splithome.html', machine_statuses = final_machine_statuses)
 
 @split_bp.route('/start_split', methods=['GET', 'POST'])
 def start_split():
@@ -49,7 +94,7 @@ def start_split():
             cursor.close()
             conn.close()
 
-        return render_template('split/splithome.html')
+        return splithome()
     else:
         sequence = request.args.get('sequence')
         row_number_raw = request.args.get('row_number')
@@ -87,7 +132,7 @@ def start_split():
         if not plan_details:
             return "No plan details found", 404
 
-        return render_template('split/start_split.html', plan_details = plan_details, sequence = sequence, row_number = row_number, matchine = matchine)
+        return render_template('split/start_split.html', plan_details = plan_details, sequence = sequence, row_number = row_number , matchine = matchine)
 
 @split_bp.route('/submit_split', methods=['POST'])
 def submit_split():
@@ -173,7 +218,7 @@ def end_split():
                 VALUES (%s, %s, %s, %s, %s, %s, %s)'''
 
         cursor2.execute(query_insert_end, (sequence, row_number, matchine, work_qty, wip_thick, wip_width, wip_qty,))
-
+        
         try:
             conn2.commit()
         except Exception as e:

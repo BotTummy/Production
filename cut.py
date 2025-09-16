@@ -101,9 +101,12 @@ def select_cut():
                 process_cut
             FROM
                 masterpallet.plan_details
+                    JOIN
+                masterpallet.orders ON orders.id = plan_details.order_id
             WHERE
-                order_id = %s
-                    AND plan_status != "Cancel"'''
+                order_id = %s AND 
+                plan_status != "Cancel" AND 
+                orders.status IN ("PlanC","PlanA")'''
         
         cursor.execute(query_plan_details_detail, (order_sequence,))
         plan_details = cursor.fetchall()

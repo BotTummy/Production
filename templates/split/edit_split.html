@@ -1,0 +1,45 @@
+{% extends 'layoutP.html' %}
+
+{% block title %}Edit Split{% endblock %}
+
+{% block content %}
+<body>
+
+    <div class="form-container">
+        <h2>Edit Record ID: {{ split_data.idend_split }}</h2>
+        
+        <form method="POST" action="/edit_split/{{ split_data.idend_split }}">
+            
+            <div class="form-group">
+                <label>Sequence</label>
+                <input type="text" value="{{ split_data.sequence }}" class="readonly-input" readonly>
+            </div>
+            
+            <div class="form-group">
+                <label>Row Number</label>
+                <input type="text" value="{{ split_data.row_number }}" class="readonly-input" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>Machine</label>
+                <input type="text" value="{{ split_data.matchine }}" class="readonly-input" readonly>
+            </div>
+            
+            <div class="form-group">
+                <label for="work_qty">Work Qty</label>
+                <input type="number" id="work_qty" name="work_qty" value="{{ split_data.work_qty }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="work_time">Work Time (HH:MM:SS)</label>
+                <input type="text" id="work_time" name="work_time" value="{{ split_data.work_time }}" readonly>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">Update Record</button>
+            </div>
+        </form>
+    </div>
+
+</body>
+{% endblock %}

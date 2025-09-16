@@ -1,0 +1,46 @@
+{% extends 'layoutP.html' %}
+
+{% block title %}Split Log{% endblock %}
+
+{% block content %}
+    <style>
+        .edit-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Split Log</h2>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Sequence</th>
+                <th>Row Number</th>
+                <th>Machine</th>
+                <th>Size</th>
+                <th>Work Qty</th>
+                <th>Work Time</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in latest_combined_data %}
+            <tr>
+                <td>{{ item.sequence }}</td>
+                <td>{{ item.row_number }}</td>
+                <td>{{ item.matchine }}</td>
+                <td>{{ item.thick }} x {{ item.width }}</td>
+                <td>{{ item.work_qty }}</td>
+                <td>{{ item.work_time }}</td>
+                <td>
+                    <a href="/edit_split/{{ item.idend_split }}" class="edit-btn">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+{% endblock %}

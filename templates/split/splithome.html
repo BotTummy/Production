@@ -48,30 +48,40 @@
         color: #333;
         margin-top: 5px;
     }
+    .time-info {
+        font-size: 0.9em;
+        color: #0056b3; /* เปลี่ยนเป็นสีน้ำเงินให้เด่นขึ้น */
+        margin-top: 5px;
+        font-weight: bold;
+    }
 </style>
 
     <div class="status-container">
-        <h2>Machine Status</h2>
-        <div class="status-grid">
-            {% if machine_statuses %}
-                {% for machine in machine_statuses %}
-                <div class="machine-status-item">
-                    <div class="sequence-info">Machine {{ machine.id }}</div>
+    <h2>Machine Status</h2>
+    <div class="status-grid">
+        {% if machine_statuses %}
+            {% for machine in machine_statuses %}
+            <div class="machine-status-item">
+                <strong>Machine No. {{ machine.id }}</strong>
+                
+                {% if machine.status == 'Start' or machine.status == 'Running' %}
+                    <div class="status status-Start">Running</div>
+                    <div class="sequence-info">Sequence: {{ machine.sequence }} - {{ machine.row_number }}</div>
                     
-                    {% if machine.status == 'Start' or machine.status == 'Running' %}
-                        <div class="status status-Start">Running</div>
-                        <div class="sequence-info">Sequence: {{ machine.sequence }} - {{ machine.row_number }}</div>
-                    {% elif machine.status == 'Idle' %}
-                        <div class="status status-Idle">Idle</div>
-                    {% else %}
-                        <div class="status status-Unknown">Unknown</div>
-                    {% endif %}
+                    <div class="time-info running-timer" data-starttime="{{ machine.time_start_iso }}">
+                    </div>
 
-                </div>
-                {% endfor %}
-            {% else %}
-                <p>ไม่สามารถโหลดข้อมูลสถานะเครื่องจักรได้</p>
-            {% endif %}
+                {% elif machine.status == 'Idle' %}
+                    <div class="status status-Idle">Idle</div>
+                {% else %}
+                     <div class="status status-Unknown">Unknown</div>
+                {% endif %}
+
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>ไม่สามารถโหลดข้อมูลสถานะเครื่องจักรได้</p>
+        {% endif %}
         </div>
     </div>
     <div class="container">
@@ -130,5 +140,55 @@
             </form>
         </div>
     </div>
+    <div class="form-container">
+        <form method="GET" action="/split_log">
+                <h2>Split History</h2>
+                <div class="form-action">
+                    <button type="submit" class="form-button">Check Log</button>
+                </div>
+            </form>
+    </div>
 </body>
+
+<script>
+    // ฟังก์ชันสำหรับอัปเดตเวลา
+    function updateTimers() {
+        // ค้นหา element ทั้งหมดที่มี class 'running-timer'
+        const timerElements = document.querySelectorAll('.running-timer');
+
+        timerElements.forEach(timerEl => {
+            // ดึงเวลาเริ่มต้นจาก data-attribute
+            const startTimeString = timerEl.dataset.starttime;
+            if (!startTimeString) return;
+
+            const startTime = new Date(startTimeString);
+            const now = new Date();
+
+            // คำนวณหาผลต่างเป็นวินาที
+            let diffInSeconds = Math.floor((now - startTime) / 1000);
+
+            // แปลงวินาทีเป็น ชั่วโมง, นาที, วินาที
+            const hours = Math.floor(diffInSeconds / 3600);
+            diffInSeconds %= 3600;
+            const minutes = Math.floor(diffInSeconds / 60);
+            const seconds = diffInSeconds % 60;
+
+            // จัดรูปแบบตัวเลขให้มี 2 หลักเสมอ (เช่น 01, 02)
+            const formattedTime = 
+                String(hours).padStart(2, '0') + ':' +
+                String(minutes).padStart(2, '0') + ':' +
+                String(seconds).padStart(2, '0');
+
+            // อัปเดตข้อความใน HTML
+            timerEl.textContent = 'Work Time: ' + formattedTime;
+        });
+    }
+
+    // สั่งให้ฟังก์ชันทำงานทุกๆ 1 วินาที
+    setInterval(updateTimers, 1000);
+
+    // สั่งให้ทำงานครั้งแรกทันทีเมื่อโหลดหน้าเว็บเสร็จ
+    document.addEventListener('DOMContentLoaded', updateTimers);
+</script>
+
 {% endblock %}

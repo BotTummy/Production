@@ -89,11 +89,12 @@ def start_split():
             return jsonify({'status': 'error', 'message': 'Matchine is not end work' }), 400
 
         # แก้ไขเวลา
+        start_time = datetime.datetime.now()
         query = '''INSERT INTO `production`.`start_split` 
-                    (`sequence`, `row_number`, `material_type`, `size`, `matchine`) 
-                    VALUES (%s, %s, %s, %s, %s)'''
+                    (`sequence`, `row_number`, `material_type`, `size`, `matchine`, `start_time`) 
+                    VALUES (%s, %s, %s, %s, %s, %s)'''
 
-        cursor.execute(query, (sequence, row_number, material_type, size, matchine))
+        cursor.execute(query, (sequence, row_number, material_type, size, matchine, start_time))
 
         try:
             conn.commit()
@@ -207,10 +208,10 @@ def end_split():
         wip_qty = int(request.form.get('wip_qty') or 0)
 
         query_insert_end = '''INSERT INTO `production`.`end_split` 
-                      (`sequence`, `row_number`, `matchine`, `work_qty`, `wip_thick`, `wip_width`, `wip_qty`, `work_time`) 
+                      (`sequence`, `row_number`, `matchine`, `work_qty`, `wip_thick`, `wip_width`, `wip_qty`, `work_time`, `end_time`) 
                       VALUES (%s, %s, %s, %s, %s, %s, %s, %s)'''
 
-        cursor2.execute(query_insert_end, (sequence, row_number, matchine, work_qty, wip_thick, wip_width, wip_qty, work_time_str,))
+        cursor2.execute(query_insert_end, (sequence, row_number, matchine, work_qty, wip_thick, wip_width, wip_qty, work_time_str, end_time,))
         
         try:
             conn2.commit()

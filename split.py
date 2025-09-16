@@ -91,7 +91,7 @@ def start_split():
         # แก้ไขเวลา
         query = '''INSERT INTO `production`.`start_split` 
                     (`sequence`, `row_number`, `material_type`, `size`, `matchine`) 
-                    VALUES (%s, %s, %s, %s, %s, %s)'''
+                    VALUES (%s, %s, %s, %s, %s)'''
 
         cursor.execute(query, (sequence, row_number, material_type, size, matchine,))
 

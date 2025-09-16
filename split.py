@@ -48,7 +48,7 @@ def splithome():
                     final_machine_statuses[machine_id - 1]['row_number'] = machine['row_number']
 
                 if start_time_obj:
-                        final_machine_statuses[machine_id - 1]['time_start'] = start_time_obj.strftime('%d/%m %H:%M')
+                        final_machine_statuses[machine_id - 1]['time_start'] = start_time_obj.isoformat()
                         # 2. แปลงเวลาเป็น ISO Format แล้วเก็บใน key ใหม่
                         final_machine_statuses[machine_id - 1]['time_start_iso'] = start_time_obj.isoformat()
 
@@ -335,6 +335,7 @@ def split_log():
             WITH plan_with_rownum AS (
               SELECT
                 order_id,
+                material_type,
                 CONCAT(work_thickness - work_tolerance_thickness) AS thick,
 				CONCAT(work_width - work_tolerance_width) AS width,
                 ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY idplan_details ASC) AS rn

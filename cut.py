@@ -86,27 +86,27 @@ def select_cut():
         cursor = conn.cursor(dictionary=True)
         
         query_plan_details_detail = '''
-            SELECT 
-                idplan_details,
-                order_id,
-                material_type,
-                material_size,
-                material_qty,
-                CONCAT(work_thickness - work_tolerance_thickness,
-                                        ' x ',
-                                        work_width - work_tolerance_width,
-                                        ' x ',
-                                        work_length) AS size,
-                quantity,
-                process_cut
+            SELECT
+                p.idplan_details,
+                p.order_id,
+                p.material_type,
+                p.material_size,
+                p.material_qty,
+                CONCAT(p.work_thickness - p.work_tolerance_thickness,
+                        ' x ',
+                        p.work_width - p.work_tolerance_width,
+                        ' x ',
+                        p.work_length) AS size,
+                p.quantity,
+                p.process_cut
             FROM
-                masterpallet.plan_details
-                    JOIN
-                masterpallet.orders ON orders.id = plan_details.order_id
+                masterpallet.plan_details AS p -- ตั้งชื่อย่อ p
+            JOIN
+                masterpallet.orders AS o ON o.id = p.order_id -- ตั้งชื่อย่อ o
             WHERE
-                order_id = %s AND 
-                plan_status != "Cancel" AND 
-                orders.status IN ("PlanC","PlanA")'''
+                p.order_id = %s
+                AND p.plan_status != "Cancel"
+                AND o.status IN ("PlanC" , "PlanA");'''
         
         cursor.execute(query_plan_details_detail, (order_sequence,))
         plan_details = cursor.fetchall()

@@ -88,6 +88,7 @@ def start_split():
             conn.close()
             return jsonify({'status': 'error', 'message': 'Matchine is not end work' }), 400
 
+        # แก้ไขเวลา
         query = '''INSERT INTO `production`.`start_split` 
                     (`sequence`, `row_number`, `material_type`, `size`, `matchine`) 
                     VALUES (%s, %s, %s, %s, %s)'''

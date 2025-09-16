@@ -49,7 +49,7 @@ def splithome():
 
                 if start_time_obj:
                         final_machine_statuses[machine_id - 1]['time_start'] = start_time_obj.strftime('%d/%m %H:%M')
-                        # 2. แปลงเวลาเป็น ISO Format แล้วเก็บใน key ใหม่
+
                         final_machine_statuses[machine_id - 1]['time_start_iso'] = start_time_obj.isoformat()
 
     except Exception as e:
@@ -76,6 +76,8 @@ def start_split():
 
         conn = pd_connection()
         cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("SET time_zone = 'Asia/Bangkok'")
 
         check_query = '''SELECT COUNT(*) as count 
                     FROM `production`.`start_split` 
@@ -205,6 +207,8 @@ def end_split():
         wip_thick = int(request.form.get('wip_thick') or 0)
         wip_width = int(request.form.get('wip_width') or 0)
         wip_qty = int(request.form.get('wip_qty') or 0)
+
+        cursor2.execute("SET time_zone = 'Asia/Bangkok'")
 
         query_insert_end = '''INSERT INTO `production`.`end_split` 
                       (`sequence`, `row_number`, `matchine`, `work_qty`, `wip_thick`, `wip_width`, `wip_qty`, `work_time`) 

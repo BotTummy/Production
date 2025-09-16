@@ -77,7 +77,7 @@ def start_split():
         conn = pd_connection()
         cursor = conn.cursor(dictionary=True)
 
-        cursor.execute("SET time_zone = 'Asia/Bangkok'")
+        cursor.execute("SET time_zone = '+07:00'")
 
         check_query = '''SELECT COUNT(*) as count 
                     FROM `production`.`start_split` 

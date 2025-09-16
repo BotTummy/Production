@@ -73,7 +73,7 @@ def start_split():
         matchine = request.form.get('matchine') or "0"
         material_type = request.form.get('material_type')
         size = request.form.get('size')
-
+        
         conn = pd_connection()
         cursor = conn.cursor(dictionary=True)
 
@@ -92,8 +92,8 @@ def start_split():
 
         # แก้ไขเวลา
         query = '''INSERT INTO `production`.`start_split` 
-                    (`sequence`, `row_number`, `material_type`, `size`, `matchine`) 
-                    VALUES (%s, %s, %s, %s, %s)'''
+                    (`sequence`, `row_number`, `material_type`, `size`, `matchine`, `start_time`) 
+                    VALUES (%s, %s, %s, %s, %s, NOW())'''
 
         cursor.execute(query, (sequence, row_number, material_type, size, matchine,))
 

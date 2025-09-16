@@ -48,7 +48,7 @@ def splithome():
                     final_machine_statuses[machine_id - 1]['row_number'] = machine['row_number']
 
                 if start_time_obj:
-                        final_machine_statuses[machine_id - 1]['time_start'] = start_time_obj.isoformat()
+                        final_machine_statuses[machine_id - 1]['time_start'] = start_time_obj.strftime('%d/%m %H:%M')
                         # 2. แปลงเวลาเป็น ISO Format แล้วเก็บใน key ใหม่
                         final_machine_statuses[machine_id - 1]['time_start_iso'] = start_time_obj.isoformat()
 
@@ -89,12 +89,11 @@ def start_split():
             return jsonify({'status': 'error', 'message': 'Matchine is not end work' }), 400
 
         # แก้ไขเวลา
-        start_time = datetime.datetime.now()
         query = '''INSERT INTO `production`.`start_split` 
-                    (`sequence`, `row_number`, `material_type`, `size`, `matchine`, `start_time`) 
+                    (`sequence`, `row_number`, `material_type`, `size`, `matchine`) 
                     VALUES (%s, %s, %s, %s, %s, %s)'''
 
-        cursor.execute(query, (sequence, row_number, material_type, size, matchine, start_time))
+        cursor.execute(query, (sequence, row_number, material_type, size, matchine,))
 
         try:
             conn.commit()
@@ -208,10 +207,10 @@ def end_split():
         wip_qty = int(request.form.get('wip_qty') or 0)
 
         query_insert_end = '''INSERT INTO `production`.`end_split` 
-                      (`sequence`, `row_number`, `matchine`, `work_qty`, `wip_thick`, `wip_width`, `wip_qty`, `work_time`, `end_time`) 
+                      (`sequence`, `row_number`, `matchine`, `work_qty`, `wip_thick`, `wip_width`, `wip_qty`, `work_time`) 
                       VALUES (%s, %s, %s, %s, %s, %s, %s, %s)'''
 
-        cursor2.execute(query_insert_end, (sequence, row_number, matchine, work_qty, wip_thick, wip_width, wip_qty, work_time_str, end_time,))
+        cursor2.execute(query_insert_end, (sequence, row_number, matchine, work_qty, wip_thick, wip_width, wip_qty, work_time_str, ))
         
         try:
             conn2.commit()

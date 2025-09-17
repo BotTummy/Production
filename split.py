@@ -135,7 +135,7 @@ def start_split():
             WHERE
                 plan_status != 'Cancel' AND 
                 order_id = %s AND
-                orders.status IN ("PlanC","PlanA")
+                orders.status IN ("PlanC","PlanA","Cuted")
             LIMIT 1 OFFSET %s;
         '''
 

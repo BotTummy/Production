@@ -29,7 +29,7 @@ def splithome():
 
         query_running_machines = """
             SELECT 
-                matchine, `row_number`, sequence, status , start_time
+                matchine, `row_number`, sequence, status , start_time_th
             FROM
                 production.start_split
             WHERE
@@ -41,14 +41,14 @@ def splithome():
         if running_machines:
             for machine in running_machines:
                 machine_id = machine['matchine']
-                start_time_obj = machine['start_time']
+                start_time_obj = machine['start_time_th']
                 if 1 <= machine_id <= total_machines:
                     final_machine_statuses[machine_id - 1]['status'] = machine['status']
                     final_machine_statuses[machine_id - 1]['sequence'] = machine['sequence']
                     final_machine_statuses[machine_id - 1]['row_number'] = machine['row_number']
 
                 if start_time_obj:
-                        final_machine_statuses[machine_id - 1]['time_start'] = start_time_obj.strftime('%d/%m %H:%M')
+                        final_machine_statuses[machine_id - 1]['start_time_th'] = start_time_obj.strftime('%d/%m %H:%M')
 
                         final_machine_statuses[machine_id - 1]['time_start_iso'] = start_time_obj.isoformat()
 

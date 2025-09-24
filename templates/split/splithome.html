@@ -153,17 +153,16 @@
 </body>
 
 <script>
-    // ฟังก์ชันสำหรับอัปเดตเวลา
+
     function updateTimers() {
-        // ค้นหา element ทั้งหมดที่มี class 'running-timer'
         const timerElements = document.querySelectorAll('.running-timer');
 
         timerElements.forEach(timerEl => {
-            // ดึงเวลาเริ่มต้นจาก data-attribute
             const startTimeString = timerEl.dataset.starttime;
             if (!startTimeString) return;
 
             const startTime = new Date(startTimeString);
+            startTime.setMinutes(startTime.getMinutes() - 5);
             const now = new Date();
 
             // คำนวณหาผลต่างเป็นวินาที

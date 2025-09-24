@@ -162,7 +162,7 @@
             if (!startTimeString) return;
 
             const startTime = new Date(startTimeString);
-            startTime.setMinutes(startTime.getMinutes() - 5);
+            startTime.setMinutes(startTime.getMinutes() + 5);
             const now = new Date();
 
             // คำนวณหาผลต่างเป็นวินาที

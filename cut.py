@@ -89,7 +89,8 @@ def select_cut():
             SELECT
                 p.idplan_details,
                 p.order_id,
-                p.material_type,
+                p.material_type, 
+                
                 p.material_size,
                 p.material_qty,
                 CONCAT(p.work_thickness - p.work_tolerance_thickness,
@@ -100,13 +101,13 @@ def select_cut():
                 p.quantity,
                 p.process_cut
             FROM
-                masterpallet.plan_details AS p -- ตั้งชื่อย่อ p
+                masterpallet.plan_details AS p 
             JOIN
-                masterpallet.orders AS o ON o.id = p.order_id -- ตั้งชื่อย่อ o
+                masterpallet.orders AS o ON o.id = p.order_id 
             WHERE
                 p.order_id = %s
                 AND p.plan_status != "Cancel"
-                AND o.status IN ("PlanC" , "PlanA");'''
+                AND o.status IN ("PlanC" , "PlanA", "Cuted", "Split");'''
         
         cursor.execute(query_plan_details_detail, (order_sequence,))
         plan_details = cursor.fetchall()

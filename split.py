@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from db import db_connection, pd_connection
 from utils import check_session
 from collections import defaultdict
-import datetime
+from datetime import datetime, timedelta, timezone
 import mysql.connector
 
 split_bp = Blueprint('split', __name__, template_folder='templates/split')
@@ -20,6 +20,7 @@ def splithome():
             'status': 'Idle',
             'sequence': '-',
             'row_number':'-',
+            'time_start': None,
             'time_start_iso': None
         })
 
@@ -29,7 +30,7 @@ def splithome():
 
         query_running_machines = """
             SELECT 
-                matchine, `row_number`, sequence, status , start_time_th
+                matchine, `row_number`, sequence, status , start_time
             FROM
                 production.start_split
             WHERE
@@ -41,14 +42,14 @@ def splithome():
         if running_machines:
             for machine in running_machines:
                 machine_id = machine['matchine']
-                start_time_obj = machine['start_time_th']
+                start_time_obj = machine['start_time']
                 if 1 <= machine_id <= total_machines:
                     final_machine_statuses[machine_id - 1]['status'] = machine['status']
                     final_machine_statuses[machine_id - 1]['sequence'] = machine['sequence']
                     final_machine_statuses[machine_id - 1]['row_number'] = machine['row_number']
 
                 if start_time_obj:
-                        final_machine_statuses[machine_id - 1]['start_time_th'] = start_time_obj.strftime('%d/%m %H:%M')
+                        final_machine_statuses[machine_id - 1]['start_time'] = start_time_obj.strftime('%d/%m %H:%M')
 
                         final_machine_statuses[machine_id - 1]['time_start_iso'] = start_time_obj.isoformat()
 
@@ -77,7 +78,9 @@ def start_split():
         conn = pd_connection()
         cursor = conn.cursor(dictionary=True)
 
-        cursor.execute("SET time_zone = '+07:00'")
+        # cursor.execute("SET time_zone = '+07:00'")
+        thailand_tz = timezone(timedelta(hours=7))
+        current_datetime = datetime.now(thailand_tz).replace(tzinfo=None)
 
         check_query = '''SELECT COUNT(*) as count 
                     FROM `production`.`start_split` 
@@ -93,9 +96,9 @@ def start_split():
         # แก้ไขเวลา
         query = '''INSERT INTO `production`.`start_split` 
                     (`sequence`, `row_number`, `material_type`, `size`, `matchine`, `start_time`) 
-                    VALUES (%s, %s, %s, %s, %s, NOW())'''
+                    VALUES (%s, %s, %s, %s, %s, %s)'''
 
-        cursor.execute(query, (sequence, row_number, material_type, size, matchine,))
+        cursor.execute(query, (sequence, row_number, material_type, size, matchine, current_datetime))
 
         try:
             conn.commit()
@@ -207,8 +210,6 @@ def end_split():
         wip_thick = int(request.form.get('wip_thick') or 0)
         wip_width = int(request.form.get('wip_width') or 0)
         wip_qty = int(request.form.get('wip_qty') or 0)
-
-        cursor2.execute("SET time_zone = 'Asia/Bangkok'")
 
         query_insert_end = '''INSERT INTO `production`.`end_split` 
                       (`sequence`, `row_number`, `matchine`, `work_qty`, `wip_thick`, `wip_width`, `wip_qty`, `work_time`) 

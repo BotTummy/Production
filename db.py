@@ -12,8 +12,8 @@ def db_connection():
 
 def pd_connection():
     conn = mysql.connector.connect(
-        host='69759854e4f4',
         # host='localhost',
+        host='69759854e4f4',
         user='root',
         password='Isylzjko0',
         database='production'

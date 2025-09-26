@@ -171,14 +171,14 @@ def end_split():
         work_time_str = '00:00:00' 
 
         try:
-            query_get_start_time = '''SELECT start_time FROM `row_number`
+            query_get_start_time = '''SELECT start_time FROM `production`.`start_split`
                                       WHERE `sequence` = %s AND `row_number` = %s AND `status` = 'Start' AND `matchine` = %s'''
             cursor2.execute(query_get_start_time, (sequence, row_number, matchine,))
             start_time_result = cursor2.fetchone()
 
             if start_time_result and start_time_result['start_time']:
                 start_time = start_time_result['start_time']
-                end_time = datetime.datetime.now()
+                end_time = datetime.now()
                 
                 duration = end_time - start_time
                 

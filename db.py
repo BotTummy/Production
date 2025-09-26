@@ -2,8 +2,8 @@ import mysql.connector
 
 def db_connection():
     conn = mysql.connector.connect(
-        # host='localhost',
-        host='119.59.101.135',
+        host='localhost',
+        # host='119.59.101.135',
         user='root',
         password='Isylzjko0',
         database='masterpallet'

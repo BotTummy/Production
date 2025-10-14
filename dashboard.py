@@ -40,7 +40,7 @@ def dashboard():
         })
 
     try:
-        conn = pd_connection()
+        conn = db_connection()
         cursor = conn.cursor(dictionary=True)
 
         query_order = """

@@ -165,31 +165,30 @@
             startTime.setMinutes(startTime.getMinutes() + 5);
             const now = new Date();
 
-            // คำนวณหาผลต่างเป็นวินาที
             let diffInSeconds = Math.floor((now - startTime) / 1000);
 
-            // แปลงวินาทีเป็น ชั่วโมง, นาที, วินาที
             const hours = Math.floor(diffInSeconds / 3600);
             diffInSeconds %= 3600;
             const minutes = Math.floor(diffInSeconds / 60);
             const seconds = diffInSeconds % 60;
 
-            // จัดรูปแบบตัวเลขให้มี 2 หลักเสมอ (เช่น 01, 02)
             const formattedTime = 
                 String(hours).padStart(2, '0') + ':' +
                 String(minutes).padStart(2, '0') + ':' +
                 String(seconds).padStart(2, '0');
 
-            // อัปเดตข้อความใน HTML
             timerEl.textContent = 'Work Time: ' + formattedTime;
         });
     }
 
-    // สั่งให้ฟังก์ชันทำงานทุกๆ 1 วินาที
     setInterval(updateTimers, 1000);
 
-    // สั่งให้ทำงานครั้งแรกทันทีเมื่อโหลดหน้าเว็บเสร็จ
     document.addEventListener('DOMContentLoaded', updateTimers);
+
+    // setTimeout(function() {
+    //     location.reload();
+    // }, 120000);
+
 </script>
 
 {% endblock %}

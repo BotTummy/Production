@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            max-width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 10px;
+            animation: fadeIn 0.5s ease-in;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .datetime {
+            font-size: 1em;
+            opacity: 0.95;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 6px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            backdrop-filter: blur(10px);
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: slideUp 0.6s ease-out;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .section:first-of-type {
+            flex: 2;
+            margin-bottom: 8px;
+            min-height: 0;
+        }
+
+        .section:last-of-type {
+            flex: 1;
+            min-height: 0;
+        }
+
+        .section-title {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #667eea;
+            /* display: flex; */
+            display:block;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .section-title .icon {
+            font-size: 1.2em;
+        }
+
+        .grid {
+            display: grid;
+            gap: 12px;
+            flex: 1;
+            min-height: 0;
+            overflow: auto;
+        }
+
+        .machines-grid {
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            height: 100%;
+        }
+
+        .assembly-grid {
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: 1fr;
+            height: 100%;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-left: 5px solid #667eea;
+            position: relative;
+            overflow: hidden;
+            /* display: flex; */
+            display:block;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(102,126,234,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(30%, -30%);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-shrink: 0;
+        }
+
+        .card-title {
+            font-size: 1em;
+            font-weight: bold;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-title::before {
+            content: '⚙️';
+            font-size: 1em;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.7em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            animation: pulse 2s infinite;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .status-running {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .status-idle {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+
+        .status-unknown {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .card-content {
+            margin-top: 8px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: auto;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #f0f0f0;
+            flex-shrink: 0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #666;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #333;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        .time-section {
+            margin-top: 10px;
+            padding: 10px;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8eeff 100%);
+            border-radius: 8px;
+            border: 2px solid #667eea;
+            flex-shrink: 0;
+        }
+
+        .time-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+            color: #667eea;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        .time-header::before {
+            content: '🕐';
+            font-size: 1em;
+        }
+
+        .start-time {
+            font-size: 0.85em;
+            color: #555;
+            margin-bottom: 6px;
+            padding: 4px 8px;
+            background: white;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .start-time-label {
+            color: #888;
+            font-size: 0.85em;
+        }
+
+        .start-time-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .running-timer {
+            font-size: 1.4em;
+            color: #667eea;
+            font-weight: bold;
+            text-align: center;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        .idle-message {
+            text-align: center;
+            color: #999;
+            font-size: 0.85em;
+            padding: 10px;
+            font-style: italic;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 8px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+            background-size: 200% 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            animation: shimmer 2s linear infinite;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.9;
+                transform: scale(0.98);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .machines-grid {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: repeat(4, 1fr);
+            }
+            
+            .assembly-grid {
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .section-title {
+                font-size: 1.1em;
+            }
+            
+            .machines-grid,
+            .assembly-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+            }
+
+            .running-timer {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ข้อมูลจาก Backend -->
+    <script type="application/json" id="machineData">
+        {{ machines | tojson }}
+    </script>
+    <script type="application/json" id="assemblyLineData">
+        {{ assembly_lines | tojson }}
+    </script>
+
+    <div class="container">
+        <div class="section">
+            <div class="section-title">
+                <span class="icon">🔧</span>
+                <span>Split Machine Status</span>
+            </div>
+            <div class="grid machines-grid" id="machineGrid"></div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <span class="icon">🏗️</span>
+                <span>Assembly Line Status</span>
+            </div>
+            <div class="grid assembly-grid" id="assemblyGrid"></div>
+        </div>
+    </div>
+
+    <script>
+        // ข้อมูลตัวอย่างสำหรับทดสอบ (หากยังไม่มีข้อมูลจาก Flask/Jinja2)
+        const machineData = JSON.parse(document.getElementById('machineData').textContent || '[]');
+        const assemblyLineData = JSON.parse(document.getElementById('assemblyLineData').textContent || '[]');
+
+        function formatDuration(startTimeISO) {
+            if (!startTimeISO) return '-';
+            
+            const startTime = new Date(startTimeISO);
+            const now = new Date();
+            const diff = now - startTime;
+            
+            const hours = Math.floor(diff / 3600000);
+            const minutes = Math.floor((diff % 3600000) / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
+            
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        // ฟังก์ชันเพื่อฟอร์แมตวันที่ให้อ่านง่าย
+        function formatStartTime(startTimeISO) {
+            if (!startTimeISO) return '-';
+            const date = new Date(startTimeISO);
+            const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+            return date.toLocaleTimeString('th-TH', options);
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            };
+            const datetimeElement = document.getElementById('datetime');
+            if(datetimeElement) {
+                datetimeElement.textContent = now.toLocaleDateString('th-TH', options);
+            }
+        }
+
+        function renderMachines() {
+            const grid = document.getElementById('machineGrid');
+            grid.innerHTML = machineData.map(machine => {
+                const statusClass = `status-${machine.status.toLowerCase()}`;
+                const statusText = {
+                    'Running': 'Running',
+                    'Idle': 'Idle',
+                    'Unknown': 'Error'
+                }[machine.status] || machine.status;
+                
+                // กำหนดความคืบหน้า (Progress) เป็น 0 ถ้าไม่ได้รัน
+                const progress = machine.status === 'Running' && machine.time_start_iso 
+                    ? Math.min(((Date.now() - new Date(machine.time_start_iso)) / 3600000) * 20, 100) 
+                    : 0;
+
+                let timeContent = '';
+                if (machine.status === 'Running' && machine.time_start_iso) {
+                    timeContent = `
+                        <div class="progress-bar" hidden>
+                            <div class="progress-fill" style="width: ${progress}%;" data-start="${machine.time_start_iso}"></div>
+                        </div>
+                        <div class="time-section">
+                            <div class="running-timer" data-start="${machine.time_start_iso}">
+                                ${formatDuration(machine.time_start_iso)}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    timeContent = `
+                        <div class="time-section">
+                            <div class="idle-message">ไม่ได้ทำงาน</div>
+                        </div>
+                    `;
+                }
+                
+                return `
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">${machine.name}</div>
+                            <div class="status-badge ${statusClass}">${statusText}</div>
+                        </div>
+                        <div class="card-content">
+                            <div class="info-row">
+                                <span class="info-label">Sequence:</span>
+                                <span class="info-value">${machine.sequence || '-'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Row Number:</span>
+                                <span class="info-value">${machine.row_number || '-'}</span>
+                            </div>
+                            ${timeContent}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderAssemblyLines() {
+            const grid = document.getElementById('assemblyGrid');
+            grid.innerHTML = assemblyLineData.map(assy => {
+                const statusClass = `status-${assy.status.toLowerCase()}`;
+                const statusText = {
+                    'Running': 'Running',
+                    'Idle': 'Idle',
+                    'Unknown': 'Error'
+                }[assy.status] || assy.status;
+                
+                // คำนวณความคืบหน้าสำหรับ Progress Bar (สมมติว่าใช้ logic เดียวกันกับเครื่องจักร)
+                const progress = assy.status === 'Running' && assy.time_start_iso 
+                    ? Math.min(((Date.now() - new Date(assy.time_start_iso)) / 3600000) * 20, 100) 
+                    : 0;
+
+                let timeContent = '';
+                if (assy.status === 'Running' && assy.time_start_iso) {
+                    timeContent = `
+                        <div class="progress-bar">
+                             <div class="progress-fill" style="width: ${progress}%;" data-start="${assy.time_start_iso}"></div>
+                        </div>
+                        <div class="time-section">
+                            <div class="time-header">เวลาทำงาน</div>
+                            <div class="start-time">
+                                <span class="start-time-label">เริ่มเวลา:</span>
+                                <span class="start-time-value">${formatStartTime(assy.time_start_iso)}</span>
+                            </div>
+                            <div class="running-timer" data-start="${assy.time_start_iso}">
+                                ${formatDuration(assy.time_start_iso)}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    timeContent = `
+                        <div class="time-section">
+                            <div class="idle-message">ไม่ได้ทำงาน</div>
+                        </div>
+                    `;
+                }
+                
+                return `
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">${assy.name}</div>
+                            <div class="status-badge ${statusClass}">${statusText}</div>
+                        </div>
+                        <div class="card-content">
+                            <div class="info-row">
+                                <span class="info-label">Model:</span>
+                                <span class="info-value">${assy.model || '-'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Sequence:</span>
+                                <span class="info-value">${assy.sequence || '-'}</span>
+                            </div>
+                            ${timeContent}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateTimers() {
+            // 1. อัพเดทตัวเลขจับเวลา (running-timer)
+            document.querySelectorAll('.running-timer[data-start]').forEach(timer => {
+                const startTimeISO = timer.dataset.start;
+                timer.textContent = formatDuration(startTimeISO);
+            });
+            
+            // 2. อัพเดท progress bar
+            // ค้นหาทุกองค์ประกอบที่เป็นส่วนเติมเต็มของ Progress Bar
+            document.querySelectorAll('.progress-fill[data-start]').forEach(progress => {
+                const startTimeISO = progress.dataset.start;
+                // ในตัวอย่างนี้: ความคืบหน้าเพิ่มขึ้น 20% ต่อชั่วโมง (3600000 ms) 
+                // เพื่อจำลองความคืบหน้าในช่วงเวลาที่สมเหตุสมผล
+                const newProgress = Math.min(((Date.now() - new Date(startTimeISO)) / 3600000) * 20, 100);
+                progress.style.width = `${newProgress}%`;
+            });
+
+            // 3. อัพเดทเวลาเริ่มต้น (start-time-value)
+            document.querySelectorAll('.start-time-value').forEach(el => {
+                const card = el.closest('.card');
+                const runningTimer = card.querySelector('.running-timer[data-start]');
+                if (runningTimer) {
+                    el.textContent = formatStartTime(runningTimer.dataset.start);
+                }
+            });
+        }
+
+        // เริ่มต้นแสดงผล
+        renderMachines();
+        renderAssemblyLines();
+        updateDateTime();
+
+        // อัพเดททุก 1 วินาที
+        setInterval(() => {
+            updateTimers();
+            updateDateTime();
+        }, 1000);
+
+        // Auto refresh ทุก 5 นาที (300000 มิลลิวินาที)
+        // คุณสามารถคอมเมนต์ส่วนนี้ไว้ก่อนหากต้องการทดสอบการทำงานของ timer แบบต่อเนื่อง
+        /*
+        setInterval(() => {
+            location.reload();
+        }, 300000);
+        */
+    </script>
+</body>
+</html>

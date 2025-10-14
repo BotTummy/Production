@@ -117,8 +117,7 @@ def select_cut():
         conn.close()
 
         return render_template('cut/selectcut.html', order_sequence = order_sequence, plan_details = plan_details)
-
-    
+   
 @cut_bp.route('/submit_cut', methods=['POST'])
 def submit_cut():
     sequence = request.form.get('sequence')

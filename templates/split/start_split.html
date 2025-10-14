@@ -49,8 +49,8 @@
                     <label>Type: {{ plan_details.material_type }}</label>
                     <input type="hidden" name="material_type" value="{{ plan_details.material_type }}">
                     <br>
-                    <label>Size: {{ plan_details.work_thickness - plan_details.work_tolerance_thickness }} x {{ plan_details.work_width - plan_details.work_tolerance_width }}</label>
-                    <input type="hidden" name="size" value="{{ plan_details.work_thickness - plan_details.work_tolerance_thickness }}x{{ plan_details.work_width - plan_details.work_tolerance_width }}">
+                    <label>Size: {{ plan_details.work_thickness - plan_details.work_tolerance_thickness }} x {{ plan_details.work_width - plan_details.work_tolerance_width }} x {{ plan_details.work_length }}</label>
+                    <input type="hidden" name="size" value="{{ plan_details.work_thickness - plan_details.work_tolerance_thickness }}x{{ plan_details.work_width - plan_details.work_tolerance_width }}x{{ plan_details.work_length }}">
                     <br>
                     <label>Qty: {{ plan_details.quantity }}</label>
                     <br>

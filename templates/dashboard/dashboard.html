@@ -503,12 +503,12 @@
                         </div>
                         <div class="card-content">
                             <div class="info-row">
-                                <span class="info-label">Sequence:</span>
-                                <span class="info-value">${machine.sequence || '-'}</span>
+                                <span class="info-label">Sequence: ${machine.sequence || '-'}</span>
+                                <span class="info-value">${machine.model || '-'}</span>
                             </div>
                             <div class="info-row">
-                                <span class="info-label">Row Number:</span>
-                                <span class="info-value">${machine.row_number || '-'}</span>
+                                <span class="info-label">Size:</span>
+                                <span class="info-value">${machine.size || '-'}</span>
                             </div>
                             ${timeContent}
                         </div>
@@ -618,12 +618,11 @@
         }, 1000);
 
         // Auto refresh ทุก 5 นาที (300000 มิลลิวินาที)
-        // คุณสามารถคอมเมนต์ส่วนนี้ไว้ก่อนหากต้องการทดสอบการทำงานของ timer แบบต่อเนื่อง
-        /*
+        
         setInterval(() => {
             location.reload();
         }, 300000);
-        */
+        
     </script>
 </body>
 </html>

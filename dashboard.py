@@ -14,20 +14,19 @@ def dashboard():
     total_machines = 8
     total_assy_lines = 5
     
-    # Initialize machine statuses
     final_machine_statuses = []
     for i in range(1, total_machines + 1):
         final_machine_statuses.append({
             'id': i,
             'name': f'Split Machine {i}',
             'status': 'Idle',
+            'model': '-',
             'sequence': '-',
             'row_number': '-',
             'time_start': None,
             'time_start_iso': None
         })
     
-    # Initialize assembly line statuses
     final_assy_statuses = []
     for i in range(1, total_assy_lines + 1):
         final_assy_statuses.append({
@@ -41,13 +40,26 @@ def dashboard():
         })
 
     try:
+        conn = pd_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        query_order = """
+            SELECT 
+                id, customer, model, quantity
+            FROM
+                masterpallet.orders
+            WHERE
+                status IN ("PlanC","PlanA","Cuted","Splited")
+        """
+        cursor.execute(query_order)
+        order_detail = cursor.fetchall()
+
         conn2 = pd_connection()
         cursor2 = conn2.cursor(dictionary=True)
 
-        # Query for running split machines
         query_running_machines = """
             SELECT 
-                matchine, `row_number`, sequence, status, start_time
+                matchine, size, sequence, status, start_time
             FROM
                 production.start_split
             WHERE
@@ -55,6 +67,18 @@ def dashboard():
         """
         cursor2.execute(query_running_machines)
         running_machines = cursor2.fetchall()
+
+        order_map = {str(o['id']): o for o in order_detail}
+
+        for machine in running_machines:
+            seq = machine['sequence']
+            if seq in order_map:
+                order = order_map[seq]
+                machine.update({
+                    'customer': order['customer'],
+                    'model': order['model'],
+                    'quantity': order['quantity']
+                })
 
         if running_machines:
             for machine in running_machines:
@@ -64,7 +88,8 @@ def dashboard():
                 if 1 <= machine_id <= total_machines:
                     final_machine_statuses[machine_id - 1]['status'] = 'Running'
                     final_machine_statuses[machine_id - 1]['sequence'] = machine['sequence']
-                    final_machine_statuses[machine_id - 1]['row_number'] = machine['row_number']
+                    final_machine_statuses[machine_id - 1]['size'] = machine['size']
+                    final_machine_statuses[machine_id - 1]['model'] = machine['model']
 
                     if start_time_obj:
                         final_machine_statuses[machine_id - 1]['time_start'] = start_time_obj.strftime('%d/%m %H:%M')

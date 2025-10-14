@@ -129,6 +129,7 @@ def start_split():
                 plan_details.work_tolerance_thickness,
                 plan_details.work_width,
                 plan_details.work_tolerance_width,
+                plan_details.work_length,
                 plan_details.qty_per_piecs,
                 plan_details.quantity
             FROM

@@ -54,6 +54,14 @@
         margin-top: 5px;
         font-weight: bold;
     }
+    .small-row {
+        display: flex;
+        gap: 8px;
+    }
+    .small-row .col {
+        flex: 1;
+    }
+
 </style>
 
     <div class="status-container">
@@ -118,6 +126,8 @@
                 </div>
             </form>
         </div>
+
+        <hr style="margin:12px 0;">
         <div class="form-container">
             
             <form method="GET" action="/end_split">
@@ -142,6 +152,47 @@
             </form>
         </div>
     </div>
+
+        <hr style="margin:12px 0;">
+        <form method="POST" action="/wip_split">
+            <h2>WIP Splitting</h2>
+            <div class="input-group">
+                <div class="small-row">
+                    <div class="col">
+                        <label for="thick" style="font-weight:500; margin-bottom:4px;">Thick</label>
+                        <input type="number" id="thick" name="thick" class="form-input" min="0" step="1" required>
+                    </div>
+                    <div class="col">
+                        <label for="width" style="font-weight:500; margin-bottom:4px;">Width</label>
+                        <input type="number" id="width" name="width" class="form-input" min="0" step="1" required>
+                    </div>
+                    <div class="col">
+                        <label for="length" style="font-weight:500; margin-bottom:4px;">Length</label>
+                        <input type="number" id="length" name="length" class="form-input" min="0" step="1" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="wip_matchine">Split Machine No.</label>
+                <select class="matchine" name="matchine" id="matchine">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                </select>
+            </div>
+
+            <div class="form-action">
+                <button type="submit" class="form-button">Start WIP Splitting</button>
+            </div>
+        </form>
+
+    <hr style="margin:12px 0;">
     <div class="form-container">
         <form method="GET" action="/split_log">
                 <h2>Split History</h2>

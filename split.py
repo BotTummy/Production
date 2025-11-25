@@ -224,6 +224,9 @@ def end_split():
             conn2.rollback()
             print("Error:", e)
 
+        if sequence == "WIP":
+            return splithome()
+
         query_plan_details_detail = '''SELECT 
                             *
                         FROM
@@ -298,6 +301,61 @@ def end_split():
         conn2.close()
 
         return render_template('split/end_split.html' , plan_details = plan_details, matchine = matchine)
+
+@split_bp.route('/wip_split', methods=['GET', 'POST'])
+def wip_split():
+    vals = request.values
+    try:
+        thick = vals.get('thick', None)
+        width = vals.get('width', None)
+        length = vals.get('length', None)
+        matchine = vals.get('matchine', "0")
+        
+        if thick is None or width is None or length is None:
+            return jsonify({'status': 'error', 'message': 'Missing size parameters (thick/width/length)'}), 400
+        
+        try:
+            thick_i = int(thick)
+            width_i = int(width)
+            length_i = int(length)
+        except ValueError:
+            return jsonify({'status': 'error', 'message': 'Size values must be integers'}), 400
+
+        size = f"{thick_i}x{width_i}x{length_i}"
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 400
+
+    conn = pd_connection()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SET time_zone = '+07:00'")
+        thailand_tz = timezone(timedelta(hours=7))
+        current_datetime = datetime.now(thailand_tz).replace(tzinfo=None)
+
+        check_query = '''SELECT COUNT(*) as count 
+                         FROM `production`.`start_split` 
+                         WHERE status = 'Start' AND matchine = %s'''
+        cursor.execute(check_query, (matchine,))
+        result = cursor.fetchone()
+
+        if result and result.get('count', 0) > 0:
+            return jsonify({'status': 'error', 'message': 'Matchine is not end work'}), 400
+
+        insert_query = '''INSERT INTO `production`.`start_split` 
+                          (`sequence`, `row_number`, `material_type`, `size`, `matchine`, `start_time`) 
+                          VALUES (%s, %s, %s, %s, %s, %s)'''
+        cursor.execute(insert_query, ("WIP", 1, "WIP", size, matchine, current_datetime))
+
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+    return splithome()
+
 
 @split_bp.route('/split_log', methods=['GET', 'POST'])
 def split_log():

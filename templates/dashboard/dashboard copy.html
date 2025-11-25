@@ -389,7 +389,6 @@
     </style>
 </head>
 <body>
-    <!-- ข้อมูลจาก Backend -->
     <script type="application/json" id="machineData">
         {{ machines | tojson }}
     </script>
@@ -416,7 +415,6 @@
     </div>
 
     <script>
-        // ข้อมูลตัวอย่างสำหรับทดสอบ (หากยังไม่มีข้อมูลจาก Flask/Jinja2)
         const machineData = JSON.parse(document.getElementById('machineData').textContent || '[]');
         const assemblyLineData = JSON.parse(document.getElementById('assemblyLineData').textContent || '[]');
 
@@ -425,7 +423,32 @@
             
             const startTime = new Date(startTimeISO);
             const now = new Date();
-            const diff = now - startTime;
+            let diff = now - startTime;
+
+            const startHour = startTime.getHours();
+            const nowHour = now.getHours();
+
+            if (startHour < 12 && nowHour >= 13) {
+                diff -= 3600000;
+            }
+            else if (startHour < 12 && nowHour === 12) {
+                const noon = new Date(now);
+                noon.setHours(12, 0, 0, 0);
+                diff = noon - startTime;
+            }
+            else if (startHour === 12) {
+                const onepm = new Date(startTime);
+                onepm.setHours(13, 0, 0, 0);
+                if (now >= onepm) {
+                    diff = now - onepm;
+                } else {
+                    diff = 0;
+                }
+            }
+
+            diff -= 300000;
+
+            if (diff < 0) diff = 0;
             
             const hours = Math.floor(diff / 3600000);
             const minutes = Math.floor((diff % 3600000) / 60000);
@@ -433,8 +456,7 @@
             
             return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         }
-        
-        // ฟังก์ชันเพื่อฟอร์แมตวันที่ให้อ่านง่าย
+
         function formatStartTime(startTimeISO) {
             if (!startTimeISO) return '-';
             const date = new Date(startTimeISO);
@@ -445,9 +467,9 @@
         function updateDateTime() {
             const now = new Date();
             const options = { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit',
@@ -460,6 +482,39 @@
             }
         }
 
+        function calculateProgress(startTimeISO) {
+            if (!startTimeISO) return 0;
+            
+            const startTime = new Date(startTimeISO);
+            const now = new Date();
+            let diff = now - startTime;
+            
+            const startHour = startTime.getHours();
+            const nowHour = now.getHours();
+            
+            if (startHour < 12 && nowHour >= 13) {
+                diff -= 3600000;
+            } else if (startHour < 12 && nowHour === 12) {
+                const noon = new Date(now);
+                noon.setHours(12, 0, 0, 0);
+                diff = noon - startTime;
+            } else if (startHour === 12) {
+                const onepm = new Date(startTime);
+                onepm.setHours(13, 0, 0, 0);
+                if (now >= onepm) {
+                    diff = now - onepm;
+                } else {
+                    diff = 0;
+                }
+            }
+            
+            diff -= 300000;
+            
+            if (diff < 0) diff = 0;
+            
+            return Math.min((diff / 3600000) * 20, 100);
+        }
+
         function renderMachines() {
             const grid = document.getElementById('machineGrid');
             grid.innerHTML = machineData.map(machine => {
@@ -470,9 +525,8 @@
                     'Unknown': 'Error'
                 }[machine.status] || machine.status;
                 
-                // กำหนดความคืบหน้า (Progress) เป็น 0 ถ้าไม่ได้รัน
                 const progress = machine.status === 'Running' && machine.time_start_iso 
-                    ? Math.min(((Date.now() - new Date(machine.time_start_iso)) / 3600000) * 20, 100) 
+                    ? calculateProgress(machine.time_start_iso)
                     : 0;
 
                 let timeContent = '';
@@ -503,12 +557,12 @@
                         </div>
                         <div class="card-content">
                             <div class="info-row">
-                                <span class="info-label">Sequence:</span>
-                                <span class="info-value">${machine.sequence || '-'}</span>
+                                <span class="info-label">Sequence: ${machine.sequence || '-'}</span>
+                                <span class="info-value">${machine.model || '-'}</span>
                             </div>
                             <div class="info-row">
-                                <span class="info-label">Row Number:</span>
-                                <span class="info-value">${machine.row_number || '-'}</span>
+                                <span class="info-label">Size:</span>
+                                <span class="info-value">${machine.size || '-'}</span>
                             </div>
                             ${timeContent}
                         </div>
@@ -527,16 +581,15 @@
                     'Unknown': 'Error'
                 }[assy.status] || assy.status;
                 
-                // คำนวณความคืบหน้าสำหรับ Progress Bar (สมมติว่าใช้ logic เดียวกันกับเครื่องจักร)
                 const progress = assy.status === 'Running' && assy.time_start_iso 
-                    ? Math.min(((Date.now() - new Date(assy.time_start_iso)) / 3600000) * 20, 100) 
+                    ? calculateProgress(assy.time_start_iso)
                     : 0;
 
                 let timeContent = '';
                 if (assy.status === 'Running' && assy.time_start_iso) {
                     timeContent = `
                         <div class="progress-bar">
-                             <div class="progress-fill" style="width: ${progress}%;" data-start="${assy.time_start_iso}"></div>
+                            <div class="progress-fill" style="width: ${progress}%;" data-start="${assy.time_start_iso}"></div>
                         </div>
                         <div class="time-section">
                             <div class="time-header">เวลาทำงาน</div>
@@ -580,23 +633,18 @@
         }
 
         function updateTimers() {
-            // 1. อัพเดทตัวเลขจับเวลา (running-timer)
+
             document.querySelectorAll('.running-timer[data-start]').forEach(timer => {
                 const startTimeISO = timer.dataset.start;
                 timer.textContent = formatDuration(startTimeISO);
             });
-            
-            // 2. อัพเดท progress bar
-            // ค้นหาทุกองค์ประกอบที่เป็นส่วนเติมเต็มของ Progress Bar
+
             document.querySelectorAll('.progress-fill[data-start]').forEach(progress => {
                 const startTimeISO = progress.dataset.start;
-                // ในตัวอย่างนี้: ความคืบหน้าเพิ่มขึ้น 20% ต่อชั่วโมง (3600000 ms) 
-                // เพื่อจำลองความคืบหน้าในช่วงเวลาที่สมเหตุสมผล
-                const newProgress = Math.min(((Date.now() - new Date(startTimeISO)) / 3600000) * 20, 100);
+                const newProgress = calculateProgress(startTimeISO);
                 progress.style.width = `${newProgress}%`;
             });
 
-            // 3. อัพเดทเวลาเริ่มต้น (start-time-value)
             document.querySelectorAll('.start-time-value').forEach(el => {
                 const card = el.closest('.card');
                 const runningTimer = card.querySelector('.running-timer[data-start]');
@@ -606,24 +654,18 @@
             });
         }
 
-        // เริ่มต้นแสดงผล
         renderMachines();
         renderAssemblyLines();
         updateDateTime();
 
-        // อัพเดททุก 1 วินาที
         setInterval(() => {
             updateTimers();
             updateDateTime();
         }, 1000);
 
-        // Auto refresh ทุก 5 นาที (300000 มิลลิวินาที)
-        // คุณสามารถคอมเมนต์ส่วนนี้ไว้ก่อนหากต้องการทดสอบการทำงานของ timer แบบต่อเนื่อง
-        /*
         setInterval(() => {
             location.reload();
         }, 300000);
-        */
     </script>
 </body>
 </html>

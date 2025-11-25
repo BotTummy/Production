@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Assembly</title>
+
+  <style>
+  :root{
+    --bg:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    --card:#ffffff;
+    --muted:#6b7280;
+    --accent:#2563eb;
+    --success:#10b981;
+    --danger:#ef4444;
+    --glass: rgba(255,255,255,0.95);
+    --shadow: 0 12px 40px rgba(2,6,23,0.16);
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background:var(--bg);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    padding:28px;
+    color:#0f172a;
+  }
+
+  .app { max-width:1100px; margin:0 auto; }
+  .controls { position:fixed; top:18px; right:18px; z-index:1400; }
+  .card { background:var(--card); border-radius:var(--radius); padding:22px; box-shadow:var(--shadow); }
+  .back-btn{ display:inline-flex; align-items:center; gap:8px; background:var(--glass); padding:10px 14px; border-radius:10px; color:var(--accent); font-weight:700; box-shadow:0 8px 24px rgba(2,6,23,0.12); text-decoration:none;}
+  .back-btn:focus{outline:3px solid rgba(37,99,235,0.14)}
+  
+  h1 { font-size:20px; margin:0 0 6px; }
+  p.lead { margin:0 0 16px; color:var(--muted) }
+
+  .top-controls { display:flex; gap:14px; align-items:end; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; }
+  .left-controls { display:flex; gap:12px; align-items:center; }
+  label { font-weight:700; margin-bottom:6px; display:block; color:#111827 }
+  select, .btn { height:44px; border-radius:10px; border:1px solid rgba(15,23,42,0.06); padding:8px 12px; font-size:15px; background:white; }
+  .btn { cursor:pointer; display:inline-flex; align-items:center; gap:10px; font-weight:700; padding:10px 14px; }
+  .btn-start { background:linear-gradient(90deg,#10b981,#059669); color:white; border:0; box-shadow:0 8px 28px rgba(16,185,129,0.18); border-radius:10px; }
+  .btn-clear { background:transparent; border:1px solid rgba(15,23,42,0.06); color:var(--muted); }
+
+  .selected-count { display:inline-flex; align-items:center; gap:8px; color:var(--muted); font-weight:700; }
+  .badge { background: var(--accent); color:#fff; padding:6px 10px; border-radius:999px; font-weight:800; font-size:13px; }
+
+  table { width:100%; border-collapse:collapse; min-width:800px; }
+  thead th { position:sticky; top:0; background:#0f172a; color:white; padding:12px 10px; text-align:left; font-weight:700; font-size:13px }
+  tbody tr { transition:background .12s, transform .06s; }
+  tbody tr:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(2,6,23,0.06) }
+  td { padding:12px 10px; border-bottom:1px solid #eef2ff; vertical-align:middle; font-size:14px; color:#0f172a }
+  .col-center { text-align:center; }
+
+  .selected-row { background:linear-gradient(90deg,#ecfdf5,#e6fff0) !important; }
+  .selected-row td { color:#065f46; font-weight:700; }
+
+  .action-btn {
+    padding:6px 10px;
+    border-radius:8px;
+    border:1px solid rgba(15,23,42,0.06);
+    background:white;
+    cursor:pointer;
+    font-weight:600;
+  }
+  .action-btn:hover {
+    background:var(--accent);
+    color:#fff;
+  }
+
+  .toast {
+    position:fixed;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:26px;
+    background:#111827;
+    color:white;
+    padding:10px 16px;
+    border-radius:10px;
+    box-shadow:0 12px 40px rgba(2,6,23,0.28);
+    display:none;
+    z-index:1600;
+    font-weight:700;
+  }
+  .toast.show{display:block; animation:toastIn .22s ease-out}
+  @keyframes toastIn { from{opacity:0; transform:translate(-50%,10px)} to{opacity:1; transform:translate(-50%,0)} }
+  </style>
+</head>
+<body>
+  <div class="controls no-print">
+    <a class="back-btn" href="#" onclick="window.history.back(); return false;" aria-label="Back">⟵ Back</a>
+  </div>
+
+  <div class="app">
+    <div class="header">
+      <div>
+        <h1>รายงานงานที่เสร็จ — ฝ่ายประกอบ</h1>
+        <p class="lead">เลือกสายการประกอบเพื่อดึงงานที่กำลังทำ จากนั้นคลิก “Select” เพื่อกรอกจำนวนที่เสร็จ</p>
+      </div>
+    </div>
+
+    <div class="card top-controls">
+      <div class="left-controls">
+        <div>
+          <label for="lineSelect">เลือก Assembly Line</label>
+          <select id="lineSelect">
+            <option value="">--- Pick Line Assy ---</option>
+            <option value="PANTIMA">PANTIMA</option>
+            <option value="SI THU">SI THU</option>
+            <option value="DOR LONE">DOR LONE</option>
+            <option value="WAI LIN TUN">WAI LIN TUN</option>
+            <option value="TIN KO WIN">TIN KO WIN</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="visibility:hidden;">ปุ่ม</label>
+          <button id="refreshBtn" class="btn btn-clear">ดึงข้อมูล</button>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div class="selected-count">เลือกแล้ว <span id="selectedCount" class="badge">0</span></div>
+        <button id="confirmBtn" class="btn btn-start" disabled>ยืนยันการเสร็จ</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Sequence</th>
+              <th>Model</th>
+              <th>Qty Planned</th>
+              <th>Qty Done</th>
+              <th>Remaining</th>
+              <th>กรอกจำนวนที่เสร็จ</th>
+              <th class="col-center">สถานะ</th>
+            </tr>
+          </thead>
+          <tbody id="tasksTbody">
+            <tr><td colspan="7" class="col-center small-muted">ยังไม่มีข้อมูล</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+  (function(){
+    const GET_ENDPOINT = '/get_assy';
+    const POST_ENDPOINT = '/assy_end';
+
+    const lineSelect = document.getElementById('lineSelect');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const tasksTbody = document.getElementById('tasksTbody');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const toast = document.getElementById('toast');
+    const selectedCountEl = document.getElementById('selectedCount');
+
+    let tasks = [];
+    const selectedIds = new Set(); // store selected row ids
+
+    function showToast(msg, timeout = 3000) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(()=> toast.classList.remove('show'), timeout);
+    }
+
+    function formatRowData(item) {
+      const planned = Number(item.qty_planned ?? 0);
+      const done = Number(item.qty_done ?? 0);
+      const remaining = Math.max(0, planned - done);
+      return { planned, done, remaining };
+    }
+
+    function escapeHtml(unsafe) {
+      return String(unsafe)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function renderTasks() {
+      tasksTbody.innerHTML = '';
+      if (!tasks.length) {
+        tasksTbody.innerHTML = `<tr><td colspan="7" class="col-center small-muted">ไม่มีงานในสายนี้</td></tr>`;
+        updateSelectedCount();
+        return;
+      }
+
+      tasks.forEach((item, i) => {
+        const { planned, done, remaining } = formatRowData(item);
+        const tr = document.createElement('tr');
+        tr.dataset.id = String(item.id);
+        tr.innerHTML = `
+          <td class="cell-seq">${escapeHtml(item.sequence ?? '')}</td>
+          <td class="cell-model">${escapeHtml(item.model ?? '')}</td>
+          <td class="cell-planned">${planned}</td>
+          <td class="cell-done">${done}</td>
+          <td class="cell-remaining">${remaining}</td>
+          <td><input type="number" class="complete-input" min="1" step="1" style="width:100px;" disabled></td>
+          <td class="col-center">
+            <button type="button" class="action-btn select-single">Select</button>
+          </td>`;
+        tasksTbody.appendChild(tr);
+
+        // attach remaining to input for validation
+        const input = tr.querySelector('.complete-input');
+        input.dataset.remaining = String(remaining);
+      });
+
+      // attach listeners
+      tasksTbody.querySelectorAll('.select-single').forEach(btn => {
+        btn.addEventListener('click', () => onToggleSelect(btn));
+      });
+
+      // update selected state UI in case tasks reloaded
+      updateSelectedUIFromSet();
+      updateSelectedCount();
+    }
+
+    function onToggleSelect(btn) {
+      const tr = btn.closest('tr');
+      const id = tr.dataset.id;
+      const input = tr.querySelector('.complete-input');
+      const planned = Number(tr.querySelector('.cell-planned').textContent || 0);
+      const remaining = Number(input.dataset.remaining || planned);
+
+      if (selectedIds.has(id)) {
+        // unselect
+        selectedIds.delete(id);
+        tr.classList.remove('selected-row');
+        input.disabled = true;
+        input.value = '';
+      } else {
+        // select
+        selectedIds.add(id);
+        tr.classList.add('selected-row');
+        input.disabled = false;
+        // default value = planned but not exceed remaining
+        input.value = String(Math.min(planned, remaining));
+        input.setAttribute('max', String(remaining));
+        input.focus();
+        input.select();
+      }
+
+      updateSelectedCount();
+    }
+
+    function updateSelectedCount() {
+      selectedCountEl.textContent = String(selectedIds.size);
+      confirmBtn.disabled = selectedIds.size === 0;
+    }
+
+    function updateSelectedUIFromSet() {
+      // apply selected-row class and enable inputs for ids in set
+      tasksTbody.querySelectorAll('tr').forEach(tr => {
+        const id = tr.dataset.id;
+        const input = tr.querySelector('.complete-input');
+        if (selectedIds.has(id)) {
+          tr.classList.add('selected-row');
+          input.disabled = false;
+          // ensure value exists
+          if (!input.value) {
+            const planned = Number(tr.querySelector('.cell-planned').textContent || 0);
+            const remaining = Number(input.dataset.remaining || planned);
+            input.value = String(Math.min(planned, remaining));
+            input.setAttribute('max', String(remaining));
+          }
+        } else {
+          tr.classList.remove('selected-row');
+          input.disabled = true;
+        }
+      });
+    }
+
+    async function fetchTasks() {
+      const line = lineSelect.value;
+      if (!line) { showToast('กรุณาเลือกสายการประกอบก่อน'); return; }
+
+      refreshBtn.disabled = true; refreshBtn.textContent = 'กำลังโหลด...';
+      try {
+        const res = await fetch(`${GET_ENDPOINT}?line=${encodeURIComponent(line)}`, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        });
+        if (!res.ok) throw new Error('Server returned ' + res.status);
+        const data = await res.json();
+        tasks = Array.isArray(data) ? data : [];
+        // reset selected set (clear previous selections)
+        selectedIds.clear();
+        renderTasks();
+        showToast('โหลดข้อมูลสำเร็จ');
+      } catch (err) {
+        console.error(err);
+        showToast('โหลดข้อมูลล้มเหลว: ' + (err.message || err));
+      } finally {
+        refreshBtn.disabled = false; refreshBtn.textContent = 'ดึงข้อมูล';
+        updateSelectedCount();
+      }
+    }
+
+    async function submitCompleted() {
+      if (selectedIds.size === 0) { showToast('กรุณาเลือกงานก่อน'); return; }
+
+      // gather payload from selected rows
+      const rows = Array.from(tasksTbody.querySelectorAll('tr'));
+      const payloadTasks = [];
+
+      for (const tr of rows) {
+        const id = tr.dataset.id;
+        if (!selectedIds.has(id)) continue;
+        const input = tr.querySelector('.complete-input');
+        const raw = input.value || '';
+        const qty = Number(raw);
+        const remaining = Number(input.dataset.remaining || 0);
+        const sequence = tr.querySelector('.cell-seq').textContent || '';
+
+        if (!(qty > 0)) {
+          showToast('กรุณากรอกจำนวนที่เสร็จให้ครบสำหรับทุกงานที่เลือก');
+          input.focus();
+          return;
+        }
+        if (qty > remaining) {
+          showToast(`จำนวนต้องไม่เกิน Remaining (${remaining}) สำหรับ sequence ${sequence}`);
+          input.focus();
+          return;
+        }
+        // include sequence here
+        payloadTasks.push({ id, sequence, completed_qty: qty });
+      }
+
+      if (payloadTasks.length === 0) {
+        showToast('ไม่มีข้อมูลที่จะส่ง');
+        return;
+      }
+
+      // include line in payload as well
+      const payload = { line: lineSelect.value || null, tasks: payloadTasks };
+
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'กำลังส่ง...';
+
+      try {
+        const res = await fetch(POST_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        let respBody = null;
+        try { respBody = await res.json(); } catch(e){ respBody = null; }
+
+        if (!res.ok) {
+          const msg = (respBody && respBody.error) ? respBody.error : (`Server returned ${res.status}`);
+          throw new Error(msg);
+        }
+
+        showToast('ส่งข้อมูลเรียบร้อย');
+        // after success, clear selection and refresh data
+        selectedIds.clear();
+        await fetchTasks();
+      } catch (err) {
+        console.error(err);
+        showToast('ส่งข้อมูลไม่สำเร็จ: ' + (err.message || err));
+      } finally {
+        confirmBtn.disabled = selectedIds.size === 0;
+        confirmBtn.textContent = 'ยืนยันการเสร็จ';
+      }
+    }
+
+    // keyboard: Enter in any selected input triggers submit
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && document.activeElement && document.activeElement.classList.contains('complete-input')) {
+        e.preventDefault();
+        if (!confirmBtn.disabled) submitCompleted();
+      }
+    });
+
+    // event bindings
+    refreshBtn.addEventListener('click', fetchTasks);
+    lineSelect.addEventListener('change', fetchTasks);
+    confirmBtn.addEventListener('click', () => {
+      if (!confirm('ยืนยันส่งรายการที่ทำเสร็จใช่หรือไม่?')) return;
+      submitCompleted();
+    });
+
+    // optional initial load:
+    // fetchTasks();
+  })();
+  </script>
+</body>
+</html>

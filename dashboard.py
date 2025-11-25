@@ -1,8 +1,5 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify
+from flask import Blueprint, render_template, request, session
 from db import db_connection, pd_connection
-from utils import check_session
-from datetime import datetime, timedelta, timezone
-import mysql.connector
 
 dashboard_bp = Blueprint('dashboard', __name__, template_folder='templates/dashboard')
 
@@ -72,6 +69,13 @@ def dashboard():
 
         for machine in running_machines:
             seq = machine['sequence']
+            if seq == "WIP":
+                machine.update({
+                    'customer': "WIP",
+                    'model': "WIP",
+                    'quantity': "-"
+                })
+                continue
             if seq in order_map:
                 order = order_map[seq]
                 machine.update({
@@ -90,12 +94,12 @@ def dashboard():
                     final_machine_statuses[machine_id - 1]['sequence'] = machine['sequence']
                     final_machine_statuses[machine_id - 1]['size'] = machine['size']
                     final_machine_statuses[machine_id - 1]['model'] = machine['model']
+                    final_machine_statuses[machine_id - 1]['work_time'] = 120
 
                     if start_time_obj:
                         final_machine_statuses[machine_id - 1]['time_start'] = start_time_obj.strftime('%d/%m %H:%M')
                         final_machine_statuses[machine_id - 1]['time_start_iso'] = start_time_obj.isoformat()
         
-        # Query for running assembly lines
         query_running_assembly = """
             SELECT 
                 model, assy_line, sequence, status, start_time
@@ -104,7 +108,7 @@ def dashboard():
             WHERE
                 status = 'Start'
         """
-        cursor2.execute(query_running_assembly)  # แก้ไขจาก query_running_machines
+        cursor2.execute(query_running_assembly)
         running_assy_line = cursor2.fetchall()
         
         if running_assy_line:
@@ -123,7 +127,7 @@ def dashboard():
     
     except Exception as e:
         print(f"Database Error: {e}")
-        # Set error status
+
         for i in range(total_machines):
             final_machine_statuses[i]['status'] = 'Unknown'
         for i in range(total_assy_lines):

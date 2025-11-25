@@ -5,11 +5,13 @@ from qualitycontrol import qualitycontrol_bp
 from cut import cut_bp
 from split import split_bp
 from dashboard import dashboard_bp
+from assembly import assy_bp
 
 app = Flask(__name__)
 app.register_blueprint(login_bp)
 app.register_blueprint(qualitycontrol_bp)
 app.register_blueprint(cut_bp)
+app.register_blueprint(assy_bp)
 app.register_blueprint(split_bp)
 app.register_blueprint(dashboard_bp)
 

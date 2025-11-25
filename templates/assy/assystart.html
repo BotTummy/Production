@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Assembly</title>
+<style>
+  :root{
+    --bg:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    --card:#ffffff;
+    --muted:#6b7280;
+    --accent:#2563eb;
+    --success:#10b981;
+    --danger:#ef4444;
+    --glass: rgba(255,255,255,0.95);
+    --shadow: 0 12px 40px rgba(2,6,23,0.16);
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background:var(--bg);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    padding:28px;
+    color:#0f172a;
+  }
+
+  .app { max-width:1100px; margin:0 auto; }
+
+  .controls { position:fixed; top:18px; right:18px; z-index:1400; }
+  .back-btn{ display:inline-flex; align-items:center; gap:8px; background:var(--glass); padding:10px 14px; border-radius:10px; color:var(--accent); font-weight:700; box-shadow:0 8px 24px rgba(2,6,23,0.12); text-decoration:none;}
+  .back-btn:focus{outline:3px solid rgba(37,99,235,0.14)}
+
+  .header { display:flex; gap:16px; align-items:center; margin-bottom:18px; }
+  .card { background:var(--card); border-radius:var(--radius); padding:22px; box-shadow:var(--shadow); }
+
+  h1 { font-size:20px; margin:0 0 6px; }
+  p.lead { margin:0 0 16px; color:var(--muted) }
+
+  /* top controls */
+  .top-controls { display:flex; gap:14px; align-items:end; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; }
+  .left-controls { display:flex; gap:12px; align-items:center; }
+  label { font-weight:700; margin-bottom:6px; display:block; color:#111827 }
+  select, .btn { height:44px; border-radius:10px; border:1px solid rgba(15,23,42,0.06); padding:8px 12px; font-size:15px; background:white; }
+  select:focus, .btn:focus { outline:3px solid rgba(37,99,235,0.12) }
+
+  .btn { cursor:pointer; display:inline-flex; align-items:center; gap:10px; font-weight:700; padding:10px 14px; }
+  .btn:disabled{opacity:.55;cursor:not-allowed}
+  .btn-start { background:linear-gradient(90deg,#10b981,#059669); color:white; border:0; box-shadow:0 8px 28px rgba(16,185,129,0.18); border-radius:10px; }
+  .btn-clear { background:transparent; border:1px solid rgba(15,23,42,0.06); color:var(--muted); }
+
+  .selected-count { display:inline-flex; align-items:center; gap:8px; color:var(--muted); font-weight:700; }
+  .badge { background: var(--accent); color:#fff; padding:6px 10px; border-radius:999px; font-weight:800; font-size:13px; }
+
+  /* table */
+  .table-wrap { overflow:auto; max-height:62vh; border-radius:10px; }
+  table { width:100%; border-collapse:collapse; min-width:800px; }
+  thead th { position:sticky; top:0; background:#0f172a; color:white; padding:12px 10px; text-align:left; font-weight:700; font-size:13px }
+  tbody tr { transition:background .12s, transform .06s; }
+  tbody tr:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(2,6,23,0.06) }
+  td { padding:12px 10px; border-bottom:1px solid #eef2ff; vertical-align:middle; font-size:14px; color:#0f172a }
+  .col-center { text-align:center; }
+
+  .selected-row { background:linear-gradient(90deg,#ecfdf5,#e6fff0) !important; }
+  .selected-row td { color:#065f46; font-weight:700; }
+
+  /* assembling state: pale yellow */
+  .assembling-row { background: linear-gradient(90deg,#fff7dc,#fff4d6) !important; }
+  .assembling-row td { color:#6b4b00; font-weight:700; }
+  .assembling-badge {
+    display:inline-block;
+    background:#f59e0b;
+    color:white;
+    font-weight:700;
+    font-size:12px;
+    padding:4px 8px;
+    border-radius:999px;
+    margin-left:8px;
+  }
+
+  .small-muted { color:var(--muted); font-size:13px }
+
+  .action-btn { padding:6px 10px; border-radius:8px; border:1px solid rgba(15,23,42,0.06); background:white; cursor:pointer; }
+
+  @media (max-width:880px){ .top-controls{flex-direction:column; align-items:stretch} .left-controls{width:100%} }
+
+  .toast { position:fixed; left:50%; transform:translateX(-50%); bottom:26px; background:#111827;color:white;padding:10px 16px;border-radius:10px;box-shadow:0 12px 40px rgba(2,6,23,0.28); display:none; z-index:1600; font-weight:700; }
+  .toast.show{display:block; animation:toastIn .22s ease-out}
+  @keyframes toastIn { from{opacity:0; transform:translate(-50%,10px)} to{opacity:1; transform:translate(-50%,0)} }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="controls no-print">
+    <a class="back-btn" href="#" onclick="window.history.back(); return false;" aria-label="Back">⟵ Back</a>
+  </div>
+
+  <div class="card" role="region" aria-labelledby="pageTitle">
+    <div class="header">
+      <div><h1 id="pageTitle">Assembly</h1></div>
+      <div style="margin-left:auto" class="small-muted">User: {{ session.get('username', '') }}</div>
+    </div>
+
+    <form id="assyForm" action="{{ url_for('assy.assy_start') }}" method="post" novalidate>
+      {# CSRF token if needed #}
+
+      <div class="top-controls" aria-hidden="false">
+        <div class="left-controls">
+          <div>
+            <label for="leaderAssy">Line Assy</label>
+            <select id="leaderAssy" name="leader_assy" aria-required="true">
+              <option value="">-- Pick Line Assy --</option>
+              {% for leader in assy_leader %}
+                <option value="{{ leader }}">{{ leader }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div style="margin-left:14px; display:flex; align-items:center; gap:12px;">
+            <div class="selected-count" aria-live="polite">
+              <span class="small-muted">Pick</span>
+              <span id="selectedBadge" class="badge">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button id="clearSelectionBtn" type="button" class="btn btn-clear action-btn" title="ล้างการเลือก">Clear</button>
+          <button id="startAssemblyBtn" type="button" class="btn btn-start" aria-disabled="true" disabled>▶️ Start</button>
+        </div>
+      </div>
+
+      {% if assy_data and assy_data|length > 0 %}
+      <div class="table-wrap" role="region" aria-label="Assembly table">
+        <table>
+          <thead>
+            <tr>
+              <th class="col-center" style="width:56px"><input id="chkAll" type="checkbox" aria-label="เลือกทั้งหมด"></th>
+              <th>sequence</th>
+              <th>model_type</th>
+              <th>customer</th>
+              <th>model</th>
+              <th class="col-center">qty</th>
+              <th class="col-center" style="width:160px">Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for row in assy_data %}
+            <!-- include data-status and data-man-price -->
+            <tr data-seq="{{ row['sequence'] }}" data-man-price="{{ row.get('man_price','') }}" data-status="{{ row.get('status','') }}">
+              <td class="col-center">
+                <input class="row-chk" type="checkbox" name="selected_ids" value="{{ row['sequence'] }}" aria-label="Select {{ row['sequence'] }}">
+              </td>
+              <td>
+                {{ row['sequence'] }}
+                <!-- placeholder for assembling badge (will be shown by JS if needed) -->
+                <span class="assembling-badge" style="display:none;">Assembling</span>
+              </td>
+              <td>{{ row['model_type'] }}</td>
+              <td>{{ row['customer'] }}</td>
+              <td>{{ row['model'] }}</td>
+              <td class="col-center">{{ row['qty'] - row['qty_done'] }}</td>
+              <td class="col-center">
+                <button type="button" class="action-btn select-single" aria-label="Select row {{ row['sequence'] }}">Select</button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <div style="padding:20px"><em>No assembly data found.</em></div>
+      {% endif %}
+    </form>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  const leaderSelect = document.getElementById('leaderAssy');
+  const startBtn = document.getElementById('startAssemblyBtn');
+  const clearBtn = document.getElementById('clearSelectionBtn');
+  const chkAll = document.getElementById('chkAll');
+  const tbody = document.querySelector('table tbody');
+  const badge = document.getElementById('selectedBadge');
+  const form = document.getElementById('assyForm');
+  const toast = document.getElementById('toast');
+
+  // show toast
+  function showToast(msg, timeout=2200){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(()=> toast.classList.remove('show'), timeout);
+  }
+
+  function updateSelectedCount(){
+    const checked = document.querySelectorAll('input.row-chk:checked').length;
+    badge.textContent = checked;
+    const leaderOk = leaderSelect && leaderSelect.value.trim() !== '';
+    if(leaderOk && checked > 0){
+      startBtn.disabled = false;
+      startBtn.removeAttribute('aria-disabled');
+    } else {
+      startBtn.disabled = true;
+      startBtn.setAttribute('aria-disabled','true');
+    }
+  }
+
+  function updateRowStyle(cb){
+    const tr = cb.closest('tr');
+    if(!tr) return;
+    if(cb.checked) tr.classList.add('selected-row');
+    else tr.classList.remove('selected-row');
+  }
+
+// ------------------- แทนที่ฟังก์ชัน markAssemblingRows เดิมด้วยอันนี้ -------------------
+function markAssemblingRows(){
+  // สำหรับแต่ละ tr ที่มี data-status ให้แสดงแถบเตือน (แต่ไม่ disable inputs)
+  document.querySelectorAll('tbody tr[data-status]').forEach(tr => {
+    const status = (tr.dataset.status || '').toString().trim().toLowerCase();
+    const badgeEl = tr.querySelector('.assembling-badge');
+
+    if(status === 'assembling'){
+      // add visual class (yellow background)
+      tr.classList.add('assembling-row');
+
+      // show badge if element exists
+      if(badgeEl) badgeEl.style.display = 'inline-block';
+    } else {
+      // remove visual class for non-assembling
+      tr.classList.remove('assembling-row');
+      if(badgeEl) badgeEl.style.display = 'none';
+    }
+  });
+}
+
+  // clear selection
+  clearBtn.addEventListener('click', function(){
+    document.querySelectorAll('input.row-chk').forEach(cb => { 
+      if(!cb.disabled){ cb.checked = false; updateRowStyle(cb); }
+    });
+    if(chkAll){ chkAll.checked = false; chkAll.indeterminate = false; }
+    updateSelectedCount();
+  });
+
+  // chkAll
+  if(chkAll){
+    chkAll.addEventListener('change', function(){
+      const checked = this.checked;
+      document.querySelectorAll('input.row-chk').forEach(cb => { 
+        if(!cb.disabled){
+          cb.checked = checked; 
+          updateRowStyle(cb);
+        }
+      });
+      chkAll.indeterminate = false;
+      updateSelectedCount();
+    });
+  }
+
+  // event delegation on tbody: handle select button and checkbox clicks and row clicks
+  if(tbody){
+    tbody.addEventListener('click', function(e){
+      const selBtn = e.target.closest('.select-single');
+      if(selBtn){
+        if(selBtn.disabled) return; // ignore if disabled (assembling)
+        const tr = selBtn.closest('tr');
+        if(!tr) return;
+        const cb = tr.querySelector('input.row-chk');
+        if(cb && !cb.disabled){
+          cb.checked = !cb.checked;
+          updateRowStyle(cb);
+          updateChkAllState();
+          updateSelectedCount();
+        }
+        return;
+      }
+
+      const cb = e.target.closest('input.row-chk');
+      if(cb){
+        if(cb.disabled) return;
+        setTimeout(()=>{ updateRowStyle(cb); updateChkAllState(); updateSelectedCount(); }, 0);
+        return;
+      }
+
+      // toggle row on click (but ignore clicks on buttons/links/inputs)
+      const tr = e.target.closest('tr');
+      if(tr && !e.target.closest('button') && !e.target.closest('a') && !e.target.closest('input')){
+        const cb = tr.querySelector('input.row-chk');
+        if(cb && !cb.disabled){
+          cb.checked = !cb.checked;
+          updateRowStyle(cb);
+          updateChkAllState();
+          updateSelectedCount();
+        }
+      }
+    });
+  }
+
+  function updateChkAllState(){
+    const all = Array.from(document.querySelectorAll('input.row-chk')).filter(c=>!c.disabled);
+    if(!all.length) { if(chkAll){ chkAll.checked = false; chkAll.indeterminate = false; } return; }
+    const checkedCount = all.filter(c=>c.checked).length;
+    if(chkAll){
+      chkAll.checked = checkedCount === all.length;
+      chkAll.indeterminate = checkedCount > 0 && checkedCount < all.length;
+    }
+  }
+
+  // leader change updates start button state
+  leaderSelect.addEventListener('change', updateSelectedCount);
+
+  // start button: validate & confirm then submit POST
+  startBtn.addEventListener('click', function(){
+    const leader = leaderSelect.value && leaderSelect.value.trim();
+    const checked = Array.from(document.querySelectorAll('input.row-chk:checked')).filter(c=>!c.disabled);
+    if(!leader){
+      showToast('กรุณาเลือก Leader ก่อน');
+      leaderSelect.focus();
+      return;
+    }
+    if(!checked.length){
+      showToast('กรุณาเลือกอย่างน้อย 1 รายการ');
+      return;
+    }
+
+    const seqs = checked.map(c => c.value);
+    const confirmMsg = `ต้องการเริ่มประกอบ ${seqs.length} รายการ โดย Leader: ${leader}\n\nSequences: ${seqs.join(', ')}\n\nยืนยันใช่หรือไม่?`;
+    if(!confirm(confirmMsg)) return;
+
+    // remove old man_price hidden inputs if any
+    document.querySelectorAll('input[name="man_price"]').forEach(n => n.remove());
+
+    // create hidden man_price inputs matching selected order (exclude disabled rows)
+    checked.forEach(c => {
+      const tr = c.closest('tr');
+      const manPrice = tr ? (tr.dataset.manPrice ?? '') : '';
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'man_price';
+      input.value = manPrice;
+      form.appendChild(input);
+    });
+
+    // submit form (POST)
+    form.method = 'post';
+    form.submit();
+  });
+
+  // initial states
+  markAssemblingRows(); // mark assembling rows first (disables their inputs)
+  document.querySelectorAll('input.row-chk').forEach(cb => updateRowStyle(cb));
+  updateChkAllState();
+  updateSelectedCount();
+
+  // keyboard accessibility: Enter on row toggles checkbox
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' && document.activeElement && document.activeElement.closest('tr')){
+      const tr = document.activeElement.closest('tr');
+      const cb = tr.querySelector('input.row-chk');
+      if(cb && !cb.disabled){ cb.checked = !cb.checked; updateRowStyle(cb); updateChkAllState(); updateSelectedCount(); e.preventDefault(); }
+    }
+  });
+
+})();
+</script>
+</body>
+</html>

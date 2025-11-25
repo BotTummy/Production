@@ -141,7 +141,7 @@ def assy_start():
                 FROM 
                     masterpallet.daily_assy_detail
                 WHERE 
-                    status NOT IN ('Assemblied','Cancel')
+                    status NOT IN ('Assembled','Cancel')
             """
             cursor.execute(query)
             assy_data = cursor.fetchall()
@@ -172,13 +172,7 @@ def assy_end():
 
             if not data:
                 return jsonify({'error': 'No JSON data received'}), 400
-
-            # ✅ แสดงข้อมูลที่รับมาใน console (เพื่อ debug)
-            print("=== [ASSY_END] Data Received ===")
-            print(data)
-            print("=================================")
                       
-            # เชื่อมต่อฐานข้อมูล
             conn  = db_connection()
             cursor = conn.cursor(dictionary=True)
             conn2 = pd_connection()
@@ -189,7 +183,14 @@ def assy_end():
                 seq = task['sequence']
                 qty = task['completed_qty']
 
-            # เช็ค qty_done จาก daily_assy_detail
+                if task_id is None or seq is None or qty is None:
+                    raise ValueError(f"Missing fields in task: {task}")
+
+                try:
+                    qty = int(qty)
+                except ValueError:
+                    raise ValueError(f"Invalid qty for task {task_id}: {qty}")
+
                 query = """
                     SELECT 
                         sequence,
@@ -197,48 +198,95 @@ def assy_end():
                     FROM 
                         masterpallet.daily_assy_detail
                     WHERE 
-                        status NOT IN ('Assemblied','Cancel')
+                        status NOT IN ('Assembled','Cancel')
                             AND
                         sequence = %s
                 """
                 cursor.execute(query, (seq,))
                 assy_data = cursor.fetchone()
+
+                if not assy_data:
+                    raise LookupError(f"No daily_assy_detail row found for sequence {seq}")
+
+                query_assy = """
+                    UPDATE 
+                        production.assembly
+                    SET
+                        quantity_done = %s,
+                        status = %s,
+                        end_time = CURRENT_TIME(),
+                        work_time = TIMEDIFF(CURRENT_TIMESTAMP(), start_time)
+                    WHERE 
+                        idassembly = %s
+                """
+                cursor2.execute(query_assy, (qty, 'Assembled', task_id))
+                conn2.commit()
+
                 if qty >= assy_data['unfinish']:
-                    # จำนวนผลิตมากกว่าหรือเท่ากับจำนวนที่เหลือ ให้อัพเดท
-                    print("จำนวนผลิตมากกว่าหรือเท่ากับจำนวนที่เหลือ")
+                    query_assy_detail = """
+                        UPDATE masterpallet.daily_assy_detail
+                        SET qty_done = qty_done + %s,
+                            status = %s
+                        WHERE sequence = %s
+                    """
+                    new_status_detail = 'Assembled'
+                    update_order_flag = True
                 else:
-                    # จำนวนผลิตน้อยกว่า ให้อัพเดทแค่จำนวน daily_assy_detail
-                    print("จำนวนผลิตน้อยกว่า ให้อัพเดทแค่จำนวน")
+                    query_assy_detail = """
+                        UPDATE masterpallet.daily_assy_detail
+                        SET qty_done = qty_done + %s,
+                            status = %s
+                        WHERE sequence = %s
+                    """
+                    new_status_detail = 'Incomplete'
+                    update_order_flag = False
 
-            # อัพเดท qty_done ใน daily_assy_detail
-            # เช็คว่าครบหรือยัง
-            # อัพเดทจำนวน, เวลาหยุด, เวลาทำงานรวมใน assembly
+                cursor.execute(query_assy_detail, (qty, new_status_detail, seq, ))
+                conn.commit()
 
-            # ✅ ดึงค่า tasks (เป็น list ของงานที่ทำเสร็จ)
-            tasks = data.get('tasks', [])
+                if update_order_flag:
+                    query_order = """
+                        UPDATE 
+                            masterpallet.orders
+                        SET
+                            status = %s
+                        WHERE
+                            id = %s
+                    """
+                    cursor.execute(query_order, ('Assembled', seq,))
+                    conn.commit()
+                    
+            conn2.commit()
+            conn.commit()
 
-            # ✅ ถ้ามี tasks ให้ loop แสดงค่าแต่ละรายการ
-            # if tasks:
-            #     print("Tasks Received:")
-            #     for i, t in enumerate(tasks, start=1):
-            #         print(f"{i}. ID: {t.get('id')}, Completed Qty: {t.get('completed_qty')}")
-            # else:
-            #     print("⚠️ No tasks in payload")
-
-            # ✅ ส่ง response กลับไปให้ Frontend
-            return jsonify({
-                'status': 'success',
-                'message': f'Received {len(tasks)} task(s)',
-                'received': tasks
-            }), 200
+            return jsonify({'status': 'success'}), 200
 
         except Exception as e:
+            try:
+                conn2.rollback()
+            except:
+                pass
+            try:
+                conn.rollback()
+            except:
+                pass
+
             print("❌ Error in /assy_end:", e)
             return jsonify({'error': str(e)}), 500
-    else:
-        
-        return render_template('assy/assyend.html')
 
+        finally:
+            try:
+                cursor2.close()
+                conn2.close()
+            except:
+                pass
+            try:
+                cursor.close()
+                conn.close()
+            except:
+                pass
+    else:
+        return render_template('assy/assyend.html')
 @assy_bp.route('/get_assy', methods=['GET'])
 def get_assy():
     try:

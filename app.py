@@ -6,6 +6,7 @@ from cut import cut_bp
 from split import split_bp
 from dashboard import dashboard_bp
 from assembly import assy_bp
+from split_dashboard import split_db_bp 
 
 app = Flask(__name__)
 app.register_blueprint(login_bp)
@@ -14,6 +15,7 @@ app.register_blueprint(cut_bp)
 app.register_blueprint(assy_bp)
 app.register_blueprint(split_bp)
 app.register_blueprint(dashboard_bp)
+app.register_blueprint(split_db_bp)
 
 app.config['SECRET_KEY'] = 'MasterPallet'
 app.config['MAX_CONTENT_PATH'] = 16 * 1024 * 1024

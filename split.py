@@ -356,7 +356,6 @@ def wip_split():
 
     return splithome()
 
-
 @split_bp.route('/split_log', methods=['GET', 'POST'])
 def split_log():
 

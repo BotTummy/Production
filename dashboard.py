@@ -100,13 +100,14 @@ def dashboard():
                         final_machine_statuses[machine_id - 1]['time_start'] = start_time_obj.strftime('%d/%m %H:%M')
                         final_machine_statuses[machine_id - 1]['time_start_iso'] = start_time_obj.isoformat()
         
+        # ...................Assembly................................
         query_running_assembly = """
             SELECT 
-                model, assy_line, sequence, status, start_time
+                model, assy_line, sequence, status, start_time, man_price
             FROM
                 production.assembly
             WHERE
-                status = 'Start'
+                status = 'Assembling'
         """
         cursor2.execute(query_running_assembly)
         running_assy_line = cursor2.fetchall()

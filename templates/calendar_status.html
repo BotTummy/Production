@@ -80,6 +80,7 @@
 
         .calendar {
             width: 100%;
+            table-layout: fixed;
             border-collapse: collapse;
             background: white;
             border-radius: 10px;
@@ -95,6 +96,7 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
+            width: 14.28%;
         }
 
         .calendar td {
@@ -103,9 +105,11 @@
             vertical-align: top;
             height: 140px;
             width: 14.28%;
+            max-width: 14.28%;
             position: relative;
             background: white;
             transition: background 0.3s ease;
+            overflow: hidden;
         }
 
         .calendar td:hover {
@@ -209,11 +213,11 @@
         }
 
         .order-item[data-status="Spliting"] .model-name {
-            color: #2ecc71;
+            color: #3bc575;
         }
 
         .order-item[data-status="Splited"] .model-name {
-            color: #09381d;
+            color: #c74e08;
         }
 
         .order-item[data-status="Checked"] .model-name {
@@ -278,10 +282,16 @@
                 margin: 10px;
             }
 
+            .calendar th {
+                width: 14.28%;
+            }
+
             .calendar td {
                 height: 120px;
                 padding: 8px;
                 font-size: 0.9rem;
+                width: 14.28%;
+                max-width: 14.28%;
             }
 
             .order-item {
@@ -338,22 +348,26 @@
             .calendar-wrapper {
                 padding: 10px;
                 overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
             }
 
             .calendar {
-                min-width: 100%;
+                min-width: 700px;
+                width: 100%;
                 font-size: 0.85rem;
             }
 
             .calendar th {
                 padding: 10px 5px;
                 font-size: 0.85rem;
+                width: 14.28%;
             }
 
             .calendar td {
                 height: 80px;
                 padding: 3px;
-                min-width: 50px;
+                width: 14.28%;
+                max-width: 14.28%;
             }
 
             .day-number {
@@ -404,9 +418,19 @@
                 font-size: 1.2rem;
             }
 
+            .calendar {
+                min-width: 600px;
+            }
+
             .calendar td {
                 height: 70px;
                 padding: 2px;
+                width: 14.28%;
+                max-width: 14.28%;
+            }
+
+            .calendar th {
+                width: 14.28%;
             }
 
             .day-number {
@@ -422,14 +446,14 @@
 </head>
 <body>
     <div class="container">
-        <div class="header">
+        <!-- <div class="header">
             <h1>📅 Order Calendar</h1>
-            <a href="/" class="back-link">← Back to Home</a>
-        </div>
+        </div> -->
 
         <div class="navigation">
             <a href="?year={{ prev_year }}&month={{ prev_month }}" class="nav-btn">◀ Previous Month</a>
             <div class="month-display">{{ month_name }} {{ year }}</div>
+            <a href="/" class="back-link">← Back to Home</a>
             <a href="?year={{ next_year }}&month={{ next_month }}" class="nav-btn">Next Month ▶</a>
         </div>
 

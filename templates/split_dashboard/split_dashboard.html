@@ -139,6 +139,11 @@
         font-size: 1rem;
     }
     .form-button:hover { background-color: #218838; }
+    
+    /* Selected Row Highlight */
+    tr.selected-row {
+        background-color: #e3f2fd !important;
+    }
 </style>
 
     <!-- Main Content: Cut List & Details -->
@@ -162,7 +167,7 @@
                             <td>{{ item.cut_sequence }}</td>
                             <td>{{ item.date_cut }}</td>
                             <td>
-                                <button class="btn-select" onclick="loadDetails({{ item.cut_sequence }})">Select</button>
+                                <button class="btn-select" onclick="loadDetails({{ item.cut_sequence }}, this)">Select</button>
                             </td>
                         </tr>
                         {% endfor %}
@@ -213,7 +218,17 @@
     document.addEventListener('DOMContentLoaded', updateTimers);
 
     // Detail Loading Logic
-    function loadDetails(seq) {
+    // Detail Loading Logic
+    function loadDetails(seq, btn) {
+        // Highlight logic for Cut List
+        if (btn) {
+            // Remove existing highlights in this table
+            const row = btn.closest('tr');
+            const table = row.closest('table');
+            table.querySelectorAll('tr.selected-row').forEach(tr => tr.classList.remove('selected-row'));
+            row.classList.add('selected-row');
+        }
+
         const detailContainer = document.getElementById('detail-content');
         const detailTitle = document.getElementById('detail-title');
         
@@ -258,7 +273,7 @@
                     // Determine sequence value for button
                     let orderSeq = row.sequence || row.Sequence || row.order_id || '';
                     if (orderSeq) {
-                        tableHtml += `<td><button class="btn-select" onclick="viewPlan('${orderSeq}')">View Plan</button></td>`;
+                        tableHtml += `<td><button class="btn-select" onclick="viewPlan('${orderSeq}', this)">View Plan</button></td>`;
                     } else {
                         tableHtml += `<td>-</td>`;
                     }
@@ -277,7 +292,15 @@
     }
 
     // View Plan Logic
-    function viewPlan(orderId) {
+    function viewPlan(orderId, btn) {
+        // Highlight logic for Cut Details
+        if (btn) {
+             const row = btn.closest('tr');
+             const table = row.closest('table');
+             table.querySelectorAll('tr.selected-row').forEach(tr => tr.classList.remove('selected-row'));
+             row.classList.add('selected-row');
+        }
+
         const planContainer = document.getElementById('plan-details-container');
         const planContent = document.getElementById('plan-content');
         const planOrderId = document.getElementById('plan-order-id');

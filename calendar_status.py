@@ -92,6 +92,9 @@ def calendar_view():
         cursor.execute("SELECT userid, username, section FROM users WHERE username = %s", (username,))
         user = cursor.fetchone()
         
+        # Get today's date for highlighting
+        today = datetime.now().strftime('%Y-%m-%d')
+        
         return render_template('calendar_status.html', 
                              month_calendar=month_calendar,
                              orders_by_date=orders_by_date,
@@ -102,6 +105,7 @@ def calendar_view():
                              prev_year=prev_year,
                              next_month=next_month,
                              next_year=next_year,
+                             today=today,
                              user=user)
         
     except mysql.connector.Error as err:

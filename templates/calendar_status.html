@@ -185,7 +185,7 @@
         }
 
         .order-item {
-            border-left: 6px solid var(--type-color, #6c757d);
+            /* border-left: 6px solid var(--type-color, #6c757d); */
             background: linear-gradient(
                 to right,
                 var(--type-bg, #f0f0f0) 0%,
@@ -196,39 +196,39 @@
         }
 
         .order-item[data-type="Pallet"] {
-            --type-bg: #3498db;
+            --type-bg: #9ccdee;
         }
 
         .order-item[data-type="Plywood"] {
-            --type-bg: #e67e22;
+            --type-bg: #f3b782;
         }
 
         .order-item[data-type="Cut to size"] {
-            --type-bg: #27ae60;
+            --type-bg: #90f3b9;
         }
 
         .order-item[data-type="Case"] {
-            --type-bg: #b218b8;
+            --type-bg: #f294f5;
         }
 
         .order-item[data-status="Order"] {
-            --status-bg: #ccc4e2;
+            --status-bg: #ffffff;
         }
 
         .order-item[data-status="PlanA"],
         .order-item[data-status="PlanC"] {
-            --status-bg: #e3f39c;
+            --status-bg: #fffc56;
         }
 
         .order-item[data-status="Spliting"] {
-            --status-bg: #7bf786;
+            --status-bg: #6bdd74;
         }
 
         .order-item[data-status="Cuted"],
         .order-item[data-status="Checking"],
         .order-item[data-status="Checked"],
         .order-item[data-status="Splited"] {
-            --status-bg: #07bd01;
+            --status-bg: #088303;
         }
 
         .order-item[data-status="END"] {
@@ -516,15 +516,6 @@
             <div class="legend-item">
                 <div class="legend-color" style="border-left-color: #6c757d; background: linear-gradient(to right, #f0f0f0 0%, #fff 100%);"></div>
                 <span class="legend-label">ไม่ระบุประเภท</span>
-            </div>
-            <div style="width: 100%; margin-top: 10px; padding-top: 10px; border-top: 1px solid #dee2e6; text-align: center;">
-                <strong>สถานะ:</strong> 
-                <span style="color: #ffffff; background: #333; padding: 2px 8px; border-radius: 3px; margin: 0 10px;">● Order</span>
-                <span style="color: #0066ff; margin: 0 10px;">● PlanA / PlanC</span>
-                <span style="color: #2ecc71; margin: 0 10px;">● Spliting</span>
-                <span style="color: #ebb82b; margin: 0 10px;">● Splited</span>
-                <span style="color: #8e44ad; margin: 0 10px;">● Checked</span>
-                <span style="color: #000000; margin: 0 10px;">● END</span>
             </div>
         </div>
 

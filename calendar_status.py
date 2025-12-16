@@ -52,7 +52,11 @@ def calendar_view():
         connpd.close()
 
         # Create a set of sequence IDs from progress for faster lookup
-        progress_sequences = {p['sequence'] for p in progress}
+        progress_sequences = {
+            int(p['sequence'])
+            for p in progress
+            if str(p.get('sequence')).isdigit()
+        }
 
         # Update order status to "Spliting" if conditions are met
         for order in orders:

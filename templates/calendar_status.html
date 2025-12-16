@@ -189,10 +189,14 @@
             background: linear-gradient(
                 to right,
                 var(--type-bg, #f0f0f0) 0%,
-                var(--type-bg, #f0f0f0) 25%,
-                var(--status-bg, #ffffff) 25%,
+                var(--type-bg, #f0f0f0) 90%,
+                var(--status-bg, #ffffff) 90%,
                 var(--status-bg, #ffffff) 100%
             );
+        }
+
+        .order-item .model-name {
+            color: var(--text-color, #777777);
         }
 
         .order-item[data-type="Pallet"] {
@@ -232,16 +236,12 @@
             --status-bg: #07bd01;
         }
 
-        .order-item[data-status="Checked"] {
-            --status-bg: #d795fd;
+        .order-item[data-status="Checked"] .model-name {
+            color: #8d1787;
         }
 
-        .order-item[data-status="END"] {
-            --status-bg: #000000;
-        }
-
-        .order-item .model-name {
-            color: var(--text-color, #000);
+        .order-item[data-status="END"] .model-name {
+            color: #000000;
         }
 
         .order-item[data-status="Order"] {

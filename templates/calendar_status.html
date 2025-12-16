@@ -150,6 +150,7 @@
             cursor: pointer;
             transition: all 0.2s ease;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
 
         .order-item:hover {
@@ -161,18 +162,26 @@
             font-weight: 600;
             display: block;
             margin-bottom: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            word-wrap: break-word;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.2;
+            font-size: 0.85rem;
+        }
+
+        /* Auto-scale font size for long text */
+        .order-item .model-name:has(+ .model-name) {
+            font-size: 0.75rem;
         }
 
         .order-item .customer-name {
             font-size: 0.75rem;
             color: #6c757d;
             display: block;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            word-wrap: break-word;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.2;
         }
 
         /* Color coding for different model types */
@@ -379,14 +388,14 @@
                 font-size: 1.1rem;
             }
 
+
             .order-item {
-                font-size: 0.7rem;
                 padding: 3px 4px;
                 margin-bottom: 2px;
             }
 
             .order-item .model-name {
-                font-size: 0.7rem;
+                line-height: 1.1;
             }
 
             .legend {
@@ -446,14 +455,9 @@
 </head>
 <body>
     <div class="container">
-        <!-- <div class="header">
-            <h1>📅 Order Calendar</h1>
-        </div> -->
-
         <div class="navigation">
             <a href="?year={{ prev_year }}&month={{ prev_month }}" class="nav-btn">◀ Previous Month</a>
             <div class="month-display">{{ month_name }} {{ year }}</div>
-            <a href="/" class="back-link">← Back to Home</a>
             <a href="?year={{ next_year }}&month={{ next_month }}" class="nav-btn">Next Month ▶</a>
         </div>
 
@@ -520,12 +524,67 @@
                 <span style="color: #ffffff; background: #333; padding: 2px 8px; border-radius: 3px; margin: 0 10px;">● Order</span>
                 <span style="color: #0066ff; margin: 0 10px;">● PlanA / PlanC</span>
                 <span style="color: #2ecc71; margin: 0 10px;">● Spliting</span>
-                <span style="color: #27ae60; margin: 0 10px;">● Splited</span>
+                <span style="color: #ebb82b; margin: 0 10px;">● Splited</span>
                 <span style="color: #8e44ad; margin: 0 10px;">● Checked</span>
                 <span style="color: #000000; margin: 0 10px;">● END</span>
             </div>
         </div>
 
     </div>
+
+    <script>
+        // Auto-adjust font size based on text length and screen size
+        function adjustFontSizes() {
+            const modelNames = document.querySelectorAll('.order-item .model-name');
+            const screenWidth = window.innerWidth;
+            
+            modelNames.forEach(function(element) {
+                const text = element.textContent || element.innerText;
+                const textLength = text.length;
+                
+                // Base font sizes based on screen width
+                let baseSizes = {
+                    normal: '0.85rem',
+                    medium: '0.8rem',
+                    long: '0.75rem',
+                    veryLong: '0.65rem'
+                };
+                
+                // Adjust base sizes for mobile
+                if (screenWidth <= 480) {
+                    baseSizes = {
+                        normal: '0.65rem',
+                        medium: '0.6rem',
+                        long: '0.55rem',
+                        veryLong: '0.5rem'
+                    };
+                } else if (screenWidth <= 768) {
+                    baseSizes = {
+                        normal: '0.7rem',
+                        medium: '0.65rem',
+                        long: '0.6rem',
+                        veryLong: '0.55rem'
+                    };
+                }
+                
+                // Adjust font size based on text length
+                if (textLength > 25) {
+                    element.style.fontSize = baseSizes.veryLong;
+                } else if (textLength > 18) {
+                    element.style.fontSize = baseSizes.long;
+                } else if (textLength > 12) {
+                    element.style.fontSize = baseSizes.medium;
+                } else {
+                    element.style.fontSize = baseSizes.normal;
+                }
+            });
+        }
+        
+        // Run on page load
+        document.addEventListener('DOMContentLoaded', adjustFontSizes);
+        
+        // Re-adjust on window resize
+        window.addEventListener('resize', adjustFontSizes);
+    </script>
 </body>
 </html>

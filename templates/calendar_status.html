@@ -185,7 +185,6 @@
         }
 
         .order-item {
-            /* border-left: 6px solid var(--type-color, #6c757d); */
             background: linear-gradient(
                 to right,
                 var(--type-bg, #f0f0f0) 0%,
@@ -233,11 +232,10 @@
 
         .order-item[data-status="END"] {
             --status-bg: #000000;
-            --text-color: #ffffff;
         }
 
         .order-item .model-name {
-            color: #000000;
+            color: var(--text-color, #000000);
         }
 
         .legend {

@@ -195,10 +195,6 @@
             );
         }
 
-        .order-item .model-name {
-            color: var(--text-color, #777777);
-        }
-
         .order-item[data-type="Pallet"] {
             --type-color: #3498db;
         }
@@ -219,10 +215,6 @@
             --text-color: #ccc4e2;
         }
 
-        .order-item[data-status="Order"] {
-            --status-bg: #ffffff;
-        }
-
         .order-item[data-status="PlanA"],
         .order-item[data-status="PlanC"] {
             --status-bg: #e3f39c;
@@ -238,19 +230,11 @@
 
         .order-item[data-status="END"] {
             --status-bg: #000000;
+            --text-color: #ffffff;
         }
 
-        .order-item[data-status="Checked"] .model-name {
-            color: #8d1787;
-        }
-
-        .order-item[data-status="END"] .model-name {
-            color: #000000;
-        }
-
-                /* Default for other statuses */
         .order-item .model-name {
-            color: #333333;
+            color: #000000;
         }
 
         .legend {

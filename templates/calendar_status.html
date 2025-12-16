@@ -189,8 +189,8 @@
             background: linear-gradient(
                 to right,
                 var(--type-bg, #f0f0f0) 0%,
-                var(--type-bg, #f0f0f0) 95%,
-                var(--status-bg, #ffffff) 95%,
+                var(--type-bg, #f0f0f0) 90%,
+                var(--status-bg, #ffffff) 90%,
                 var(--status-bg, #ffffff) 100%
             );
         }
@@ -224,12 +224,10 @@
             --status-bg: #7bf786;
         }
 
-        .order-item[data-status="Splited"] {
-            --status-bg: #07bd01;
-        }
-        
+        .order-item[data-status="Cuted"],
         .order-item[data-status="Checking"],
-        .order-item[data-status="Checked"] {
+        .order-item[data-status="Checked"],
+        .order-item[data-status="Splited"] {
             --status-bg: #07bd01;
         }
 

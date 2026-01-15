@@ -146,7 +146,7 @@ def assy_start():
             cursor.execute(query)
             assy_data = cursor.fetchall()
 
-            assy_leader = ['PANTIMA','SI THU','DOR LONE','WAI LIN TUN','TIN KO WIN']
+            assy_leader = ['PANTIMA','SI THU','DOR LONE','WAI LIN TUN','TIN KO WIN','THED KO KO']
 
         except Exception as e:
             print(f"Database Error: {e}")

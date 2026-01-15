@@ -52,8 +52,8 @@
 
         .section {
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            padding: 15px;
+            border-radius: 12px;
+            padding: 10px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             animation: slideUp 0.6s ease-out;
             display: flex;
@@ -62,23 +62,22 @@
         }
 
         .section:first-of-type {
-            flex: 2;
-            margin-bottom: 8px;
+            flex: 3;  /* 60% of space */
+            margin-bottom: 6px;
             min-height: 0;
         }
 
         .section:last-of-type {
-            flex: 1;
+            flex: 2;  /* 40% of space */
             min-height: 0;
         }
 
         .section-title {
-            font-size: 1.2em;
+            font-size: 1em;
             color: #333;
-            margin-bottom: 8px;
-            padding-bottom: 6px;
+            margin-bottom: 6px;
+            padding-bottom: 4px;
             border-bottom: 2px solid #667eea;
-            /* display: flex; */
             display:block;
             align-items: center;
             gap: 10px;
@@ -86,12 +85,12 @@
         }
 
         .section-title .icon {
-            font-size: 1.2em;
+            font-size: 1em;
         }
 
         .grid {
             display: grid;
-            gap: 12px;
+            gap: 8px;
             flex: 1;
             min-height: 0;
             overflow: auto;
@@ -111,21 +110,20 @@
 
         .card {
             background: white;
-            border-radius: 12px;
-            padding: 12px;
+            border-radius: 10px;
+            padding: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
-            border-left: 5px solid #667eea;
+            border-left: 4px solid #667eea;
             position: relative;
             overflow: hidden;
-            /* display: flex; */
             display:block;
             flex-direction: column;
             min-height: 0;
         }
 
         .card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
             box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
 
@@ -134,8 +132,8 @@
             position: absolute;
             top: 0;
             right: 0;
-            width: 120px;
-            height: 120px;
+            width: 80px;
+            height: 80px;
             background: radial-gradient(circle, rgba(102,126,234,0.1) 0%, transparent 70%);
             border-radius: 50%;
             transform: translate(30%, -30%);
@@ -145,31 +143,31 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
             flex-shrink: 0;
         }
 
         .card-title {
-            font-size: 1em;
+            font-size: 0.85em;
             font-weight: bold;
             color: #333;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
         }
 
         .card-title::before {
             content: '⚙️';
-            font-size: 1em;
+            font-size: 0.9em;
         }
 
         .status-badge {
-            padding: 4px 10px;
-            border-radius: 15px;
-            font-size: 0.7em;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.6em;
             font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
             animation: pulse 2s infinite;
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
@@ -190,7 +188,7 @@
         }
 
         .card-content {
-            margin-top: 8px;
+            margin-top: 4px;
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -202,7 +200,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 6px 0;
+            padding: 3px 0;
             border-bottom: 1px solid #f0f0f0;
             flex-shrink: 0;
         }
@@ -213,21 +211,21 @@
 
         .info-label {
             color: #666;
-            font-size: 0.8em;
+            font-size: 0.7em;
             font-weight: 500;
         }
 
         .info-value {
             color: #333;
             font-weight: 600;
-            font-size: 0.85em;
+            font-size: 0.75em;
         }
 
         .time-section {
-            margin-top: 10px;
-            padding: 10px;
+            margin-top: 6px;
+            padding: 6px;
             background: linear-gradient(135deg, #f8f9ff 0%, #e8eeff 100%);
-            border-radius: 8px;
+            border-radius: 6px;
             border: 2px solid #667eea;
             flex-shrink: 0;
         }
@@ -235,25 +233,25 @@
         .time-header {
             display: flex;
             align-items: center;
-            gap: 6px;
-            margin-bottom: 8px;
+            gap: 4px;
+            margin-bottom: 4px;
             color: #667eea;
             font-weight: 600;
-            font-size: 0.85em;
+            font-size: 0.7em;
         }
 
         .time-header::before {
             content: '🕐';
-            font-size: 1em;
+            font-size: 0.9em;
         }
 
         .start-time {
-            font-size: 0.85em;
+            font-size: 0.7em;
             color: #555;
-            margin-bottom: 6px;
-            padding: 4px 8px;
+            margin-bottom: 3px;
+            padding: 2px 4px;
             background: white;
-            border-radius: 6px;
+            border-radius: 4px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -261,7 +259,7 @@
 
         .start-time-label {
             color: #888;
-            font-size: 0.85em;
+            font-size: 0.9em;
         }
 
         .start-time-value {
@@ -270,23 +268,36 @@
         }
 
         .running-timer {
-            font-size: 1.4em;
+            font-size: 1.1em;
             color: #667eea;
             font-weight: bold;
             text-align: center;
-            padding: 8px;
+            padding: 4px;
             background: white;
-            border-radius: 6px;
+            border-radius: 4px;
             font-family: 'Courier New', monospace;
             letter-spacing: 1px;
             box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .running-timer.overtime {
+            color: #ef4444;
+            background: #fee2e2;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
 
         .idle-message {
             text-align: center;
             color: #999;
-            font-size: 0.85em;
-            padding: 10px;
+            font-size: 0.75em;
+            padding: 6px;
             font-style: italic;
         }
 
@@ -351,39 +362,286 @@
             }
         }
 
-        @media (max-width: 1200px) {
+        /* Large Desktop (1920px+) */
+        @media (min-width: 1920px) {
+            .container {
+                max-width: 1920px;
+                margin: 0 auto;
+            }
+            
+            .header h1 {
+                font-size: 2.5em;
+            }
+            
+            .section-title {
+                font-size: 1.4em;
+            }
+            
+            .card-title {
+                font-size: 1.1em;
+            }
+            
+            .info-label, .info-value {
+                font-size: 0.95em;
+            }
+        }
+
+        /* Tablet Landscape & Small Desktop (1024px - 1440px) */
+        @media (max-width: 1440px) {
             .machines-grid {
-                grid-template-columns: repeat(2, 1fr);
-                grid-template-rows: repeat(4, 1fr);
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+            
+            .assembly-grid {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 10px;
+            }
+            
+            .card {
+                padding: 10px;
+            }
+            
+            .section {
+                padding: 12px;
+            }
+        }
+
+        /* Tablet Portrait & Small Laptop (768px - 1024px) */
+        @media (max-width: 1024px) {
+            body {
+                padding: 8px;
+                overflow-y: auto;
+            }
+            
+            .container {
+                height: auto;
+                min-height: 100vh;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .section:first-of-type {
+                flex: none;
+                margin-bottom: 10px;
+            }
+            
+            .section:last-of-type {
+                flex: none;
+            }
+            
+            .machines-grid {
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: auto;
+                gap: 10px;
             }
             
             .assembly-grid {
                 grid-template-columns: repeat(3, 1fr);
-                grid-template-rows: repeat(2, 1fr);
+                grid-template-rows: auto;
+                gap: 10px;
+            }
+            
+            .grid {
+                overflow: visible;
+            }
+            
+            .card {
+                padding: 10px;
+            }
+            
+            .running-timer {
+                font-size: 1.3em;
             }
         }
 
+        /* Mobile Landscape (576px - 768px) */
         @media (max-width: 768px) {
             body {
                 padding: 5px;
+                overflow-y: auto;
+            }
+            
+            .container {
+                height: auto;
+            }
+
+            .header {
+                margin-bottom: 8px;
             }
 
             .header h1 {
                 font-size: 1.5em;
+                margin-bottom: 3px;
+            }
+            
+            .datetime {
+                font-size: 0.85em;
+                padding: 4px 12px;
+            }
+            
+            .section {
+                padding: 10px;
+                margin-bottom: 8px;
             }
             
             .section-title {
+                font-size: 1em;
+                margin-bottom: 6px;
+                padding-bottom: 4px;
+            }
+            
+            .machines-grid {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: auto;
+                gap: 8px;
+            }
+            
+            .assembly-grid {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: auto;
+                gap: 8px;
+            }
+            
+            .card {
+                padding: 8px;
+            }
+            
+            .card-title {
+                font-size: 0.9em;
+            }
+            
+            .status-badge {
+                font-size: 0.65em;
+                padding: 3px 8px;
+            }
+            
+            .info-label {
+                font-size: 0.75em;
+            }
+            
+            .info-value {
+                font-size: 0.8em;
+            }
+            
+            .time-section {
+                padding: 8px;
+                margin-top: 8px;
+            }
+            
+            .time-header {
+                font-size: 0.8em;
+                margin-bottom: 6px;
+            }
+            
+            .start-time {
+                font-size: 0.75em;
+                padding: 3px 6px;
+                margin-bottom: 4px;
+            }
+            
+            .start-time-label {
+                font-size: 0.85em;
+            }
+
+            .running-timer {
                 font-size: 1.1em;
+                padding: 6px;
+            }
+        }
+
+        /* Mobile Portrait (320px - 576px) */
+        @media (max-width: 576px) {
+            body {
+                padding: 3px;
+            }
+            
+            .header h1 {
+                font-size: 1.2em;
+            }
+            
+            .datetime {
+                font-size: 0.75em;
+                padding: 3px 10px;
+            }
+            
+            .section {
+                padding: 8px;
+                border-radius: 10px;
+            }
+            
+            .section-title {
+                font-size: 0.95em;
             }
             
             .machines-grid,
             .assembly-grid {
                 grid-template-columns: 1fr;
                 grid-template-rows: auto;
+                gap: 8px;
             }
-
+            
+            .card {
+                padding: 10px;
+            }
+            
+            .card-title {
+                font-size: 0.95em;
+            }
+            
+            .status-badge {
+                font-size: 0.6em;
+            }
+            
+            .info-row {
+                padding: 5px 0;
+            }
+            
+            .info-label {
+                font-size: 0.8em;
+            }
+            
+            .info-value {
+                font-size: 0.85em;
+            }
+            
+            .time-section {
+                padding: 8px;
+            }
+            
+            .time-header {
+                font-size: 0.85em;
+            }
+            
+            .start-time {
+                font-size: 0.8em;
+            }
+            
             .running-timer {
                 font-size: 1.2em;
+                padding: 8px;
+            }
+            
+            .idle-message {
+                font-size: 0.8em;
+                padding: 8px;
+            }
+        }
+
+        /* Very Small Mobile (max 375px) */
+        @media (max-width: 375px) {
+            .header h1 {
+                font-size: 1.1em;
+            }
+            
+            .card-title {
+                font-size: 0.85em;
+            }
+            
+            .running-timer {
+                font-size: 1em;
             }
         }
     </style>
@@ -465,6 +723,32 @@
             return date.toLocaleTimeString('th-TH', options);
         }
 
+        function formatEndTime(startTimeISO, workTimeMinutes) {
+            if (!startTimeISO || !workTimeMinutes) return '-';
+            
+            const startTime = new Date(startTimeISO);
+            const endTime = new Date(startTime.getTime() + workTimeMinutes * 60000);
+            
+            // Check if work period crosses lunch break (12:00-13:00)
+            const startHour = startTime.getHours();
+            const endHour = endTime.getHours();
+            
+            // If start is before 12:00 and end is after 12:00, add 1 hour for lunch
+            if (startHour < 12 && endHour >= 12) {
+                endTime.setTime(endTime.getTime() + 3600000); // Add 1 hour
+            }
+            
+            const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+            return endTime.toLocaleTimeString('th-TH', options);
+        }
+
+        function formatWorkTime(workTimeMinutes) {
+            if (!workTimeMinutes) return '-';
+            const hours = Math.floor(workTimeMinutes / 60);
+            const minutes = Math.floor(workTimeMinutes % 60);
+            return `${hours}:${minutes.toString().padStart(2, '0')}`;
+        }
+
         function updateDateTime() {
             const now = new Date();
             const options = { 
@@ -483,8 +767,8 @@
             }
         }
 
-        function calculateProgress(startTimeISO) {
-            if (!startTimeISO) return 0;
+        function calculateProgress(startTimeISO, workTimeMinutes) {
+            if (!startTimeISO || !workTimeMinutes) return 0;
             
             const startTime = new Date(startTimeISO);
             const now = new Date();
@@ -493,8 +777,9 @@
             const startHour = startTime.getHours();
             const nowHour = now.getHours();
             
+            // Adjust for lunch break (12:00-13:00)
             if (startHour < 12 && nowHour >= 13) {
-                diff -= 3600000;
+                diff -= 3600000;  // Subtract 1 hour
             } else if (startHour < 12 && nowHour === 12) {
                 const noon = new Date(now);
                 noon.setHours(12, 0, 0, 0);
@@ -509,11 +794,19 @@
                 }
             }
             
+            // Subtract 5 minutes buffer
             diff -= 300000;
             
             if (diff < 0) diff = 0;
             
-            return Math.min((diff / 3600000) * 20, 100);
+            // Convert diff to minutes
+            const elapsedMinutes = diff / 60000;
+            
+            // Calculate progress: (elapsed / total) * 100
+            const progress = (elapsedMinutes / workTimeMinutes) * 100;
+            
+            // Cap at 100%
+            return Math.min(progress, 100);
         }
 
         function renderMachines() {
@@ -526,18 +819,29 @@
                     'Unknown': 'Error'
                 }[machine.status] || machine.status;
                 
-                const progress = machine.status === 'Running' && machine.time_start_iso 
-                    ? calculateProgress(machine.time_start_iso)
-                    : 0;
-
                 let timeContent = '';
                 if (machine.status === 'Running' && machine.time_start_iso) {
+                    const workTime = machine.work_time || 0;
+                    const progress = calculateProgress(machine.time_start_iso, workTime);
                     timeContent = `
                         <div class="progress-bar" hidden>
-                            <div class="progress-fill" style="width: ${progress}%;" data-start="${machine.time_start_iso}"></div>
+                            <div class="progress-fill" style="width: ${progress}%;" data-start="${machine.time_start_iso}" data-worktime="${workTime}"></div>
                         </div>
                         <div class="time-section">
-                            <div class="running-timer" data-start="${machine.time_start_iso}">
+                            <div class="time-header">เวลาทำงาน</div>
+                            <div class="start-time">
+                                <span class="start-time-label">เริ่มเวลา:</span>
+                                <span class="start-time-value">${formatStartTime(machine.time_start_iso)}</span>
+                            </div>
+                            <div class="start-time">
+                                <span class="start-time-label">สิ้นสุดเวลา:</span>
+                                <span class="start-time-value">${formatEndTime(machine.time_start_iso, workTime)}</span>
+                            </div>
+                            <div class="start-time">
+                                <span class="start-time-label">ระยะเวลา:</span>
+                                <span class="start-time-value">${formatWorkTime(workTime)}</span>
+                            </div>
+                            <div class="running-timer" data-start="${machine.time_start_iso}" data-worktime="${workTime}">
                                 ${formatDuration(machine.time_start_iso)}
                             </div>
                         </div>
@@ -582,15 +886,13 @@
                     'Unknown': 'Error'
                 }[assy.status] || assy.status;
                 
-                const progress = assy.status === 'Running' && assy.time_start_iso 
-                    ? calculateProgress(assy.time_start_iso)
-                    : 0;
-
                 let timeContent = '';
                 if (assy.status === 'Running' && assy.time_start_iso) {
+                    const workTime = assy.work_time || 0;
+                    const progress = calculateProgress(assy.time_start_iso, workTime);
                     timeContent = `
                         <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${progress}%;" data-start="${assy.time_start_iso}"></div>
+                            <div class="progress-fill" style="width: ${progress}%;" data-start="${assy.time_start_iso}" data-worktime="${workTime}"></div>
                         </div>
                         <div class="time-section">
                             <div class="time-header">เวลาทำงาน</div>
@@ -598,7 +900,15 @@
                                 <span class="start-time-label">เริ่มเวลา:</span>
                                 <span class="start-time-value">${formatStartTime(assy.time_start_iso)}</span>
                             </div>
-                            <div class="running-timer" data-start="${assy.time_start_iso}">
+                            <div class="start-time">
+                                <span class="start-time-label">สิ้นสุดเวลา:</span>
+                                <span class="start-time-value">${formatEndTime(assy.time_start_iso, workTime)}</span>
+                            </div>
+                            <div class="start-time">
+                                <span class="start-time-label">ระยะเวลา:</span>
+                                <span class="start-time-value">${formatWorkTime(workTime)}</span>
+                            </div>
+                            <div class="running-timer" data-start="${assy.time_start_iso}" data-worktime="${workTime}">
                                 ${formatDuration(assy.time_start_iso)}
                             </div>
                         </div>
@@ -634,25 +944,49 @@
         }
 
         function updateTimers() {
-
+            // Update running timers (elapsed time)
             document.querySelectorAll('.running-timer[data-start]').forEach(timer => {
                 const startTimeISO = timer.dataset.start;
+                const workTimeMinutes = parseFloat(timer.dataset.worktime) || 0;
+                
+                // Update timer text
                 timer.textContent = formatDuration(startTimeISO);
+                
+                // Check if overtime (elapsed time > work_time)
+                if (workTimeMinutes > 0) {
+                    const startTime = new Date(startTimeISO);
+                    const now = new Date();
+                    let elapsedMinutes = (now - startTime) / 60000;
+                    
+                    // Adjust for lunch break
+                    const startHour = startTime.getHours();
+                    const nowHour = now.getHours();
+                    if (startHour < 12 && nowHour >= 13) {
+                        elapsedMinutes -= 60;
+                    }
+                    
+                    // Subtract 5 minutes buffer
+                    elapsedMinutes -= 5;
+                    
+                    // Add or remove overtime class
+                    if (elapsedMinutes > workTimeMinutes) {
+                        timer.classList.add('overtime');
+                    } else {
+                        timer.classList.remove('overtime');
+                    }
+                }
             });
 
+            // Update progress bars
             document.querySelectorAll('.progress-fill[data-start]').forEach(progress => {
                 const startTimeISO = progress.dataset.start;
-                const newProgress = calculateProgress(startTimeISO);
+                const workTime = parseFloat(progress.dataset.worktime) || 0;
+                const newProgress = calculateProgress(startTimeISO, workTime);
                 progress.style.width = `${newProgress}%`;
             });
 
-            document.querySelectorAll('.start-time-value').forEach(el => {
-                const card = el.closest('.card');
-                const runningTimer = card.querySelector('.running-timer[data-start]');
-                if (runningTimer) {
-                    el.textContent = formatStartTime(runningTimer.dataset.start);
-                }
-            });
+            // Note: We don't update .start-time-value because they are static values
+            // (start time, end time, and work duration don't change)
         }
 
         renderMachines();

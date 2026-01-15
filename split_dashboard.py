@@ -62,7 +62,6 @@ def get_daily_cut_detail(cut_sequence):
             SELECT
                 sequence,
                 delivery_date,
-                id_cut_detail,
                 customer,
                 model_type,
                 model,

@@ -18,7 +18,9 @@ def login():
         if user and check_password_hash(user['password'], form.password.data):
             session['loggedin'] = True
             session['username'] = user['username']
+            session['user_name'] = user['username']
             session['section'] = user['section']
+            session['user_section'] = user['section']
             flash('Logged in successfully!', 'success')
             return render_template('index.html')
         else:

@@ -828,17 +828,16 @@
                             <div class="progress-fill" style="width: ${progress}%;" data-start="${machine.time_start_iso}" data-worktime="${workTime}"></div>
                         </div>
                         <div class="time-section">
-                            <div class="time-header">เวลาทำงาน</div>
                             <div class="start-time">
-                                <span class="start-time-label">เริ่มเวลา:</span>
+                                <span class="start-time-label">Start:</span>
                                 <span class="start-time-value">${formatStartTime(machine.time_start_iso)}</span>
                             </div>
                             <div class="start-time">
-                                <span class="start-time-label">สิ้นสุดเวลา:</span>
+                                <span class="start-time-label">End:</span>
                                 <span class="start-time-value">${formatEndTime(machine.time_start_iso, workTime)}</span>
                             </div>
                             <div class="start-time">
-                                <span class="start-time-label">ระยะเวลา:</span>
+                                <span class="start-time-label">Duration:</span>
                                 <span class="start-time-value">${formatWorkTime(workTime)}</span>
                             </div>
                             <div class="running-timer" data-start="${machine.time_start_iso}" data-worktime="${workTime}">
@@ -849,7 +848,7 @@
                 } else {
                     timeContent = `
                         <div class="time-section">
-                            <div class="idle-message">ไม่ได้ทำงาน</div>
+                            <div class="idle-message">Idle</div>
                         </div>
                     `;
                 }
@@ -895,17 +894,16 @@
                             <div class="progress-fill" style="width: ${progress}%;" data-start="${assy.time_start_iso}" data-worktime="${workTime}"></div>
                         </div>
                         <div class="time-section">
-                            <div class="time-header">เวลาทำงาน</div>
                             <div class="start-time">
-                                <span class="start-time-label">เริ่มเวลา:</span>
+                                <span class="start-time-label">Start:</span>
                                 <span class="start-time-value">${formatStartTime(assy.time_start_iso)}</span>
                             </div>
                             <div class="start-time">
-                                <span class="start-time-label">สิ้นสุดเวลา:</span>
+                                <span class="start-time-label">End:</span>
                                 <span class="start-time-value">${formatEndTime(assy.time_start_iso, workTime)}</span>
                             </div>
                             <div class="start-time">
-                                <span class="start-time-label">ระยะเวลา:</span>
+                                <span class="start-time-label">Duration:</span>
                                 <span class="start-time-value">${formatWorkTime(workTime)}</span>
                             </div>
                             <div class="running-timer" data-start="${assy.time_start_iso}" data-worktime="${workTime}">

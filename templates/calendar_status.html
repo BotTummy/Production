@@ -219,15 +219,19 @@
             --status-bg: #fffc56;
         }
 
+        .order-item[data-status="Cuted"],
         .order-item[data-status="Spliting"] {
             --status-bg: #6bdd74;
         }
 
-        .order-item[data-status="Cuted"],
-        .order-item[data-status="Checking"],
-        .order-item[data-status="Checked"],
+        
         .order-item[data-status="Splited"] {
             --status-bg: #088303;
+        }
+
+        .order-item[data-status="Checking"],
+        .order-item[data-status="Checked"] {
+            --status-bg: #47204e;
         }
 
         .order-item[data-status="Assembling"] {
@@ -520,8 +524,33 @@
                 <span class="legend-label">Cut to size</span>
             </div>
             <div class="legend-item">
-                <div class="legend-color" style="border-left-color: #6c757d; background: linear-gradient(to right, #f0f0f0 0%, #fff 100%);"></div>
-                <span class="legend-label">ไม่ระบุประเภท</span>
+                <div class="legend-color" style="border-left-color: #f294f5; background: linear-gradient(to right, #f0f0f0 0%, #fff 100%);"></div>
+                <span class="legend-label">Wooden Box</span>
+            </div>
+            <br>
+            <div class="legend-item">
+                <div class="legend-color" style="border-left-color: #fff; background: linear-gradient(to right, #fff 60%, #6bdd74 100%);"></div>
+                <span class="legend-label">Spliting</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="border-left-color: #fff; background: linear-gradient(to right, #fff 60%, #088303 100%);"></div>
+                <span class="legend-label">Splitted</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="border-left-color: #fff; background: linear-gradient(to right, #fff 60%, #b2edf5 100%);"></div>
+                <span class="legend-label">Assembling</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="border-left-color: #fff; background: linear-gradient(to right, #fff 60%, #2f39c5 100%);"></div>
+                <span class="legend-label">Assembled</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="border-left-color: #fff; background: linear-gradient(to right, #fff 60%, #47204e 100%);"></div>
+                <span class="legend-label">Checked</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="border-left-color: #fff; background: linear-gradient(to right, #fff 60%, #000000 100%);"></div>
+                <span class="legend-label">END</span>
             </div>
         </div>
 

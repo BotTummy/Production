@@ -105,7 +105,7 @@ def dashboard():
                     final_machine_statuses[machine_id - 1]['sequence'] = machine['sequence']
                     final_machine_statuses[machine_id - 1]['size'] = machine['size']
                     final_machine_statuses[machine_id - 1]['model'] = machine['model']
-                    final_machine_statuses[machine_id - 1]['work_time'] = 120
+                    # final_machine_statuses[machine_id - 1]['work_time'] = 120
 
                     if start_time_obj:
                         final_machine_statuses[machine_id - 1]['time_start'] = start_time_obj.strftime('%d/%m %H:%M')

@@ -232,7 +232,7 @@ def end_split():
                         FROM
                             masterpallet.plan_details
                         WHERE
-                            order_id = %s AND plan_status != "Cancel"'''
+                            order_id = %s AND plan_status != "Cancel" AND material_type NOT IN ("WIP", "PLY")'''
         
         cursor.execute(query_plan_details_detail, (sequence,))
         plan_details = cursor.fetchall()

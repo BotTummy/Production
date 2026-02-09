@@ -287,6 +287,7 @@ def assy_end():
                 pass
     else:
         return render_template('assy/assyend.html')
+    
 @assy_bp.route('/get_assy', methods=['GET'])
 def get_assy():
     try:
@@ -294,7 +295,7 @@ def get_assy():
         if not line_id:
             return jsonify({'error': 'Missing line parameter'}), 400
 
-        conn = db_connection()
+        conn = pd_connection()
         cursor = conn.cursor(dictionary=True)
 
         query = """

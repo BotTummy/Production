@@ -27,10 +27,10 @@ def dashboard():
     # Define assembly line names mapping
     assy_id_to_name = {
         1: 'PANTIMA',
-        2: 'Assembly Line 2',
-        3: 'Assembly Line 3',
-        4: 'Assembly Line 4',
-        5: 'Assembly Line 5'
+        2: 'SI THU',
+        3: 'DOR LONE',
+        4: 'TIN KO WIN',
+        5: 'THED KO KO'
     }
     
     final_assy_statuses = []
@@ -57,7 +57,7 @@ def dashboard():
             FROM
                 masterpallet.orders
             WHERE
-                status IN ("PlanC","PlanA","Cuted","Splited")
+                status IN ("PlanC","PlanA","Cuted","Splited","Assembling")
         """
         cursor.execute(query_order)
         order_detail = cursor.fetchall()

@@ -9,7 +9,7 @@ def dashboard():
         return render_template('index.html', username=session['username'])
 
     total_machines = 8
-    total_assy_lines = 5
+    total_assy_lines = 6
     
     final_machine_statuses = []
     for i in range(1, total_machines + 1):
@@ -29,8 +29,9 @@ def dashboard():
         1: 'PANTIMA',
         2: 'SI THU',
         3: 'DOR LONE',
-        4: 'TIN KO WIN',
-        5: 'THED KO KO'
+        4: 'WAI LIN TUN',
+        5: 'TIN KO WIN',
+        6: 'THED KO KO'
     }
     
     final_assy_statuses = []

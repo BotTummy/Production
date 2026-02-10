@@ -127,16 +127,16 @@ def dashboard():
         # Mapping assy_id (string) to array index (1-based)
         assy_mapping = {
             'PANTIMA': 1, 
-            'SI THU': 6,
-            'DOR LONE': 9,
-            'WAI LIN TUN': 5,
+            'SI THU': 2,
+            'DOR LONE': 3,
+            'WAI LIN TUN': 4,
             'TIN KO WIN': 5,
             'THED KO KO': 6
         }
         
-        # Mapping assy_id (string) to man count for work_time calculation
-        assy_man_count = {
-            'PANTIMA': 1, 
+        # Mapping assy_id to number of workers (manpower)
+        manpower_mapping = {
+            'PANTIMA': 1,
             'SI THU': 6,
             'DOR LONE': 9,
             'WAI LIN TUN': 5,
@@ -158,15 +158,15 @@ def dashboard():
                 
                 # Calculate work_time in minutes (rounded to integer)
                 work_time = 0
-                if assy_id in assy_man_count:
-                    man_day_price = assy_man_count[assy_id] * 400
+                if assy_id in manpower_mapping:
+                    man_day_price = manpower_mapping[assy_id] * 400
                     man_price = assy.get('man_price', 0)
                     if man_day_price > 0:
                         work_time = round(man_price / man_day_price * 8 * 60)  # Round to integer minutes
                 
                 # Check if work period crosses lunch break (12:00-13:00)
                 if start_time_obj and work_time > 0:
-                    from datetime import datetime, timedelta
+                    from datetime import timedelta
                     
                     # Calculate end time (without lunch break adjustment)
                     end_time = start_time_obj + timedelta(minutes=work_time)
@@ -206,7 +206,11 @@ def dashboard():
                         if start_time_obj:
                             final_assy_statuses[assy_index - 1]['time_start'] = start_time_obj.strftime('%d/%m %H:%M')
                             final_assy_statuses[assy_index - 1]['time_start_iso'] = start_time_obj.isoformat()
-    
+
+        final_assy_statuses = sorted(
+            final_assy_statuses,
+            key=lambda x: assy_mapping.get(x.get('assy_line_id'), 999)
+)
     except Exception as e:
         print(f"Database Error: {e}")
 

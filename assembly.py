@@ -215,12 +215,12 @@ def assy_end():
                         quantity_done = %s,
                         status = %s,
                         end_time = CURRENT_TIME(),
-                        work_time = TIMEDIFF(CURRENT_TIMESTAMP(), start_time)
+                        work_time = TIMEDIFF(CURRENT_TIME(), start_time)
                     WHERE 
                         idassembly = %s
                 """
+                
                 cursor2.execute(query_assy, (qty, 'Assembled', task_id))
-                conn2.commit()
 
                 if qty >= assy_data['unfinish']:
                     query_assy_detail = """
@@ -242,8 +242,7 @@ def assy_end():
                     update_order_flag = False
 
                 cursor.execute(query_assy_detail, (qty, new_status_detail, seq, ))
-                conn.commit()
-
+                
                 if update_order_flag:
                     query_order = """
                         UPDATE 
@@ -254,7 +253,6 @@ def assy_end():
                             id = %s
                     """
                     cursor.execute(query_order, ('Assembled', seq,))
-                    conn.commit()
                     
             conn2.commit()
             conn.commit()
@@ -262,14 +260,10 @@ def assy_end():
             return jsonify({'status': 'success'}), 200
 
         except Exception as e:
-            try:
+            if 'conn2' in locals():
                 conn2.rollback()
-            except:
-                pass
-            try:
+            if 'conn' in locals():
                 conn.rollback()
-            except:
-                pass
 
             print("❌ Error in /assy_end:", e)
             return jsonify({'error': str(e)}), 500

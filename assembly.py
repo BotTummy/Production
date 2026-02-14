@@ -222,22 +222,17 @@ def assy_end():
                 
                 cursor2.execute(query_assy, (qty, 'Assembled', task_id))
 
+                query_assy_detail = """
+                    UPDATE masterpallet.daily_assy_detail
+                    SET qty_done = qty_done + %s,
+                        status = %s
+                    WHERE sequence = %s
+                """
+
                 if qty >= assy_data['unfinish']:
-                    query_assy_detail = """
-                        UPDATE masterpallet.daily_assy_detail
-                        SET qty_done = qty_done + %s,
-                            status = %s
-                        WHERE sequence = %s
-                    """
                     new_status_detail = 'Assembled'
                     update_order_flag = True
                 else:
-                    query_assy_detail = """
-                        UPDATE masterpallet.daily_assy_detail
-                        SET qty_done = qty_done + %s,
-                            status = %s
-                        WHERE sequence = %s
-                    """
                     new_status_detail = 'Incomplete'
                     update_order_flag = False
 

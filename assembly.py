@@ -172,6 +172,9 @@ def assy_end():
 
             if not data:
                 return jsonify({'error': 'No JSON data received'}), 400
+            
+            if 'tasks' not in data:
+                return jsonify({'error': 'Missing tasks in JSON'}), 400
                       
             conn  = db_connection()
             cursor = conn.cursor(dictionary=True)
@@ -194,7 +197,7 @@ def assy_end():
                 query = """
                     SELECT 
                         sequence,
-                        qty - qty_done as unfinish
+                        qty - IFNULL(qty_done, 0) as unfinish
                     FROM 
                         masterpallet.daily_assy_detail
                     WHERE 
@@ -249,9 +252,8 @@ def assy_end():
                     """
                     cursor.execute(query_order, ('Assembled', seq,))
                     
-            conn2.commit()
             conn.commit()
-
+            conn2.commit()
             return jsonify({'status': 'success'}), 200
 
         except Exception as e:

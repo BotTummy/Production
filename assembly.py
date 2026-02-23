@@ -217,8 +217,8 @@ def assy_end():
                     SET
                         quantity_done = %s,
                         status = %s,
-                        end_time = CURRENT_TIME(),
-                        work_time = TIMEDIFF(CURRENT_TIME(), start_time)
+                        end_time = NOW(),
+                        work_time = TIMEDIFF(NOW(), start_time)
                     WHERE 
                         idassembly = %s
                 """

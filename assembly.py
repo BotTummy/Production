@@ -87,14 +87,14 @@ def assy_start():
             update_daily = f"""
                 UPDATE masterpallet.daily_assy_detail
                 SET status = 'Assembling'
-                WHERE sequence IN ({placeholders})
+                WHERE sequence IN ({placeholders}) and status != 'Cancel'
             """
             cursor.execute(update_daily, tuple(selected_ids))
 
             update_orders = f"""
                 UPDATE masterpallet.orders
                 SET status = 'Assembling'
-                WHERE id IN ({placeholders})
+                WHERE id IN ({placeholders}) and status != 'Cancel'
             """
             cursor.execute(update_orders, tuple(selected_ids))
 

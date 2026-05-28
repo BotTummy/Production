@@ -10,24 +10,36 @@
             <form method="POST" action="/select_cut">
                 
                 <table class="table">
+
+                    <div class="form-group">
+                        <h3 name="tag_header_1"><b>Sequence : {{ "{:05d}".format(order.id) }} , Customer : {{ order.customer }}</b></h3>
+                        <h3 name="tag_header_2"><b>Model : {{ order.model }} , Qty : {{ order.quantity }}</b></h3>
+                    </div>
                     <thead>
-                        <tr>                            
+                        <tr>
+                            <th>No.</th>                            
                             <th>M Type</th>
                             <th>M Size</th>
                             <th>M Qty</th>
                             <th>Work Size</th>
                             <th>Work Qty</th>
+                            <th>Split</th>
+                            <th>Total Cut</th>
                             <th>Select</th>
+                            <th>Print</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for detail in plan_details %}
-                        <tr>                            
-                            <td>{{ detail.material_type }}</td>
+                        <tr>
+                            <td name="no">{{ loop.index }}</td>
+                            <td name="mat_type">{{ detail.material_type }}</td>
                             <td>{{ detail.material_size }}</td>
                             <td>{{ detail.material_qty }}</td>
-                            <td>{{ detail.size }}</td>
-                            <td>{{ detail.quantity }}</td>
+                            <td name="process_size">{{ detail.size }}</td>
+                            <td name="work_qty">{{ detail.quantity }}</td>
+                            <td name="process_split">{{ detail.qty_per_piecs }}</td>
+                            <td name="cut_qty">{{ detail.cut_qty }}</td>
                             <td>
                                 <input 
                                     type="checkbox" 
@@ -35,6 +47,9 @@
                                     value="{{ detail.idplan_details }}"
                                     {% if detail.process_cut is not none %} disabled {% endif %}
                                 >
+                            </td>
+                            <td>
+                                <button type="button" class="btn-action btn-print" onclick="printSlip(this)">🖨️</button>
                             </td>
                         </tr>
                         {% endfor %}
@@ -46,5 +61,52 @@
             </form>
         </div>
     </div>
+    <script>
+    async function printSlip(btn) {
+        const row = btn.closest('tr');
+
+        const data = {
+            seq   : "{{ order.id }}",
+            no    : row.querySelector('[name="no"]').innerText, //check
+            model : "{{ order.model }}",
+            qty   : "{{ order.quantity }}",
+            type  : row.querySelector('[name="mat_type"]').innerText, //check
+            split : row.querySelector('[name="process_split"]').innerText, //check
+            size  : row.querySelector('[name="process_size"]').innerText, //check
+            total : row.querySelector('[name="cut_qty"]').innerText, //check
+            req   : row.querySelector('[name="work_qty"]').innerText, //check
+        };
+
+        btn.disabled = true;
+        btn.textContent = '⏳';
+
+        try {
+            const res = await fetch('/print-slip', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await res.json();
+
+            if (res.ok) {
+                btn.textContent = '✅';
+            } else {
+                btn.textContent = '❌';
+                alert('Error: ' + result.message);
+            }
+
+        } catch (e) {
+            btn.textContent = '❌';
+            alert('เชื่อมต่อไม่ได้: ' + e.message);
+        }
+
+        // reset ปุ่มหลัง 3 วินาที
+        setTimeout(() => {
+            btn.textContent = '🖨️';
+            btn.disabled = false;
+        }, 3000);
+    }
+</script>
 </body>
 {% endblock %}

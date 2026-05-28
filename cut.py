@@ -2,8 +2,14 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from db import db_connection, pd_connection
 from utils import check_session
 from collections import defaultdict
+import base64
+from escpos.printer import Dummy
 
 cut_bp = Blueprint('cut', __name__, template_folder='templates/cut')
+
+def parse_dimensions(size):
+    thickness, width, length = map(int, size.split('x'))
+    return thickness, width, length
 
 @cut_bp.route('/cuthome', methods=['GET'])
 def cuthome():
@@ -84,22 +90,30 @@ def select_cut():
         
         conn = db_connection()
         cursor = conn.cursor(dictionary=True)
-        
+
+        cursor.execute("""
+            SELECT id, 
+                   customer, 
+                   model, 
+                   quantity 
+            FROM masterpallet.orders 
+            WHERE id = %s;
+        """, (order_sequence,))
+        order = cursor.fetchone()
+
         query_plan_details_detail = '''
             SELECT
-                p.idplan_details,
-                p.order_id,
-                p.material_type, 
-                
+                p.material_type,
                 p.material_size,
                 p.material_qty,
                 CONCAT(p.work_thickness - p.work_tolerance_thickness,
-                        ' x ',
+                        'x',
                         p.work_width - p.work_tolerance_width,
-                        ' x ',
+                        'x',
                         p.work_length) AS size,
+                p.work_length,
                 p.quantity,
-                p.process_cut
+                p.qty_per_piecs,
             FROM
                 masterpallet.plan_details AS p 
             JOIN
@@ -110,13 +124,37 @@ def select_cut():
                 AND o.status IN ("PlanC" , "PlanA", "Cuted", "Split");'''
         
         cursor.execute(query_plan_details_detail, (order_sequence,))
-        plan_details = cursor.fetchall()
+        cut_plan_items  = cursor.fetchall()
         # print(plan_details)
+        plan_details = []
+
+        for item in cut_plan_items:
+            material_type = item['material_type']
+            material_size = item['material_size']
+            material_qty = item['material_qty']
+            size = item['size']
+            work_length = item['work_length']
+            quantity = item['quantity']
+            qty_per_piecs = item['qty_per_piecs']
+
+            mat_thick, mat_width, mat_length = parse_dimensions(material_size)
+            work_thick, work_width, work_length = parse_dimensions(size)
+            
+            cut_qty = mat_length // work_length * material_qty
+            plan_details.append({
+                'material_type' : material_type,
+                'material_size' : material_size,
+                'material_qty' : material_qty,
+                'size' : size,
+                'quantity' : quantity,
+                'qty_per_piecs' : qty_per_piecs,
+                'cut_qty' : cut_qty,
+            })
 
         cursor.close()
         conn.close()
 
-        return render_template('cut/selectcut.html', order_sequence = order_sequence, plan_details = plan_details)
+        return render_template('cut/selectcut.html', order = order, plan_details = plan_details)
    
 @cut_bp.route('/submit_cut', methods=['POST'])
 def submit_cut():
@@ -283,3 +321,173 @@ def end_cut():
         conn2.close()
 
         return render_template('cut/end_cut.html' , plan_details = plan_details, matchine = matchine)
+
+PRINT_AGENT_KEY = "a3f8c2e1b7d94f6e0a2c5b8d3e7f1a4c9b6e2d5f8a1c4e7b0d3f6a9c2e5b8d1"
+
+NORMAL   = b'\x1d\x21\x00'  # 1x1 normal
+DOUBLE   = b'\x1d\x21\x11'  # 2x2
+TRIPLE   = b'\x1d\x21\x22'  # 3x3
+BOLD_ON  = b'\x1b\x45\x01'
+BOLD_OFF = b'\x1b\x45\x00'
+ALIGN_L  = b'\x1b\x61\x00'
+ALIGN_C  = b'\x1b\x61\x01'
+
+def build_wip_bytes():
+    p = Dummy()
+    p._raw(ALIGN_L + BOLD_OFF + DOUBLE)
+    p._raw(f"Seq: {'WIP':<8} Qty: \n".encode('utf-8'))
+    p._raw(ALIGN_L + BOLD_OFF + DOUBLE)
+    p._raw(("- " * 12 + "\n").encode('utf-8'))
+    p._raw(ALIGN_C + BOLD_OFF + DOUBLE)
+    p._raw(f"WIP : 1 =  \n".encode('utf-8'))
+    p._raw(DOUBLE)
+    p._raw(f"\n{'x':^13} {'x':<9}\n".encode('utf-8'))
+    p._raw(BOLD_OFF + DOUBLE)
+    p._raw(f"\nTotal need :     \n".encode('utf-8'))
+    p.cut()
+    return bytes(p.output)
+
+
+def build_slip_bytes(seq, no, model, qty, type, split, size, total, req):
+    p = Dummy()
+    p._raw(ALIGN_L + BOLD_OFF + DOUBLE)
+    p._raw(f"Seq: {str(seq).zfill(5)}-{str(no).zfill(2):<2}  Qty: {qty}\n".encode('utf-8'))
+    p._raw(ALIGN_C + BOLD_OFF + NORMAL)
+    p._raw(f"\n{model}\n".encode('utf-8'))
+    p._raw(ALIGN_L + BOLD_OFF + DOUBLE)
+    p._raw(("- " * 12 + "\n").encode('utf-8'))
+    p._raw(ALIGN_C + BOLD_OFF + DOUBLE)
+    p._raw(f"{type} : 1 = {split}\n".encode('utf-8'))
+    p._raw(DOUBLE)
+    p._raw(f"\n{size} = {total}\n".encode('utf-8'))
+    p._raw(BOLD_OFF + DOUBLE)
+    p._raw(f"\nTotal need : {req}\n".encode('utf-8'))
+    p.cut()
+    return bytes(p.output)
+
+
+def enqueue_print_job(job_type, payload_bytes):
+    conn = None
+    cursor = None
+    try:
+        conn = pd_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO print_queue (job_type, payload, status)
+            VALUES (%s, %s, 'pending')
+        """, (job_type, payload_bytes))
+        conn.commit()
+    finally:
+        if cursor: cursor.close()
+        if conn and conn.is_connected(): conn.close()
+
+@cut_bp.route('/print-wip', methods=['POST'])
+def print_wip():
+    try:
+        payload = build_wip_bytes()
+        enqueue_print_job('wip', payload)
+        return jsonify({"status": "success", "message": "ส่งคำสั่งปริ้นแล้ว กรุณารอสักครู่..."}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@cut_bp.route('/print-slip', methods=['POST'])
+def print_slip():
+    data = request.get_json()
+    if not data:
+        return jsonify({"status": "error", "message": "Invalid or missing JSON body"}), 400
+    try:
+        payload = build_slip_bytes(
+            seq   = data.get('seq', ''),
+            no    = data.get('no', ''),
+            model = data.get('model', ''),
+            qty   = data.get('qty', ''),
+            type  = data.get('type', ''),
+            split = data.get('split', ''),
+            size  = data.get('size', ''),
+            total = data.get('total', ''),
+            req   = data.get('req', ''),
+        )
+        enqueue_print_job('slip', payload)
+        return jsonify({"status": "success", "message": "ส่งคำสั่งปริ้นแล้ว กรุณารอสักครู่..."}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+# ── Print Agent API ───────────────────────────────────────────────────────────
+
+def _agent_auth():
+    if not PRINT_AGENT_KEY or request.headers.get('X-Agent-Key') != PRINT_AGENT_KEY:
+        return jsonify({'error': 'Unauthorized'}), 401
+    return None
+
+
+@cut_bp.route('/api/print-jobs', methods=['GET'])
+def api_get_print_jobs():
+    blocked = _agent_auth()
+    if blocked:
+        return blocked
+
+    conn = None
+    cursor = None
+    try:
+        conn = pd_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT id, job_type, payload
+            FROM print_queue
+            WHERE status = 'pending'
+            ORDER BY id ASC
+            LIMIT 10
+        """)
+        rows = cursor.fetchall()
+        if rows:
+            ids = [r['id'] for r in rows]
+            ph = ','.join(['%s'] * len(ids))
+            cursor.execute(f"UPDATE print_queue SET status = 'printing' WHERE id IN ({ph})", tuple(ids))
+            conn.commit()
+        jobs = [
+            {
+                'id': r['id'],
+                'job_type': r['job_type'],
+                'payload': base64.b64encode(r['payload']).decode('utf-8'),
+            }
+            for r in rows
+        ]
+        return jsonify(jobs), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        if cursor: cursor.close()
+        if conn and conn.is_connected(): conn.close()
+
+
+@cut_bp.route('/api/print-jobs/<int:job_id>/ack', methods=['POST'])
+def api_ack_print_job(job_id):
+    blocked = _agent_auth()
+    if blocked:
+        return blocked
+
+    data = request.get_json() or {}
+    success = data.get('success', True)
+    error_msg = data.get('error', None)
+
+    conn = None
+    cursor = None
+    try:
+        conn = pd_connection()
+        cursor = conn.cursor()
+        if success:
+            cursor.execute("UPDATE print_queue SET status = 'done' WHERE id = %s", (job_id,))
+        else:
+            cursor.execute(
+                "UPDATE print_queue SET status = 'error', error_message = %s WHERE id = %s",
+                (error_msg, job_id)
+            )
+        conn.commit()
+        return jsonify({'status': 'ok'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        if cursor: cursor.close()
+        if conn and conn.is_connected(): conn.close()

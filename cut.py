@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify, flash
 from db import db_connection, pd_connection
 from utils import check_session
 from collections import defaultdict
@@ -92,17 +92,24 @@ def select_cut():
         cursor = conn.cursor(dictionary=True)
 
         cursor.execute("""
-            SELECT id, 
-                   customer, 
-                   model, 
-                   quantity 
-            FROM masterpallet.orders 
+            SELECT id,
+                   customer,
+                   model,
+                   quantity
+            FROM masterpallet.orders
             WHERE id = %s;
         """, (order_sequence,))
         order = cursor.fetchone()
 
+        if not order:
+            cursor.close()
+            conn.close()
+            flash(f'Sequence No. "{order_sequence}" not found. Please try again.', 'error')
+            return redirect(url_for('cut.cuthome'))
+
         query_plan_details_detail = '''
             SELECT
+                p.idplan_details,
                 p.material_type,
                 p.material_size,
                 p.material_qty,
@@ -111,13 +118,13 @@ def select_cut():
                         p.work_width - p.work_tolerance_width,
                         'x',
                         p.work_length) AS size,
-                p.work_length,
                 p.quantity,
                 p.qty_per_piecs,
+                p.process_cut
             FROM
-                masterpallet.plan_details AS p 
+                masterpallet.plan_details AS p
             JOIN
-                masterpallet.orders AS o ON o.id = p.order_id 
+                masterpallet.orders AS o ON o.id = p.order_id
             WHERE
                 p.order_id = %s
                 AND p.plan_status != "Cancel"
@@ -133,15 +140,18 @@ def select_cut():
             material_size = item['material_size']
             material_qty = item['material_qty']
             size = item['size']
-            work_length = item['work_length']
             quantity = item['quantity']
             qty_per_piecs = item['qty_per_piecs']
 
-            mat_thick, mat_width, mat_length = parse_dimensions(material_size)
-            work_thick, work_width, work_length = parse_dimensions(size)
-            
-            cut_qty = mat_length // work_length * material_qty
+            try:
+                mat_thick, mat_width, mat_length = parse_dimensions(material_size)
+                work_thick, work_width, work_length = parse_dimensions(size)
+                cut_qty = (mat_length // work_length * material_qty) if work_length > 0 else 0
+            except (ValueError, AttributeError, TypeError):
+                cut_qty = 0
+
             plan_details.append({
+                'idplan_details': item['idplan_details'],
                 'material_type' : material_type,
                 'material_size' : material_size,
                 'material_qty' : material_qty,
@@ -149,6 +159,7 @@ def select_cut():
                 'quantity' : quantity,
                 'qty_per_piecs' : qty_per_piecs,
                 'cut_qty' : cut_qty,
+                'process_cut' : item['process_cut'],
             })
 
         cursor.close()

@@ -141,7 +141,7 @@ def assy_start():
                 FROM 
                     masterpallet.daily_assy_detail
                 WHERE 
-                    status NOT IN ('Assembled', 'Cancel', 'End')
+                    status NOT IN ('Assembled', 'Cancel', 'End', 'Checked')
             """
             cursor.execute(query)
             assy_data = cursor.fetchall()
